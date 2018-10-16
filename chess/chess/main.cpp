@@ -3,7 +3,7 @@
 //               Mathew Kostrzewa - 100591924
 //               member2 - studentNum
 //               member3 - studentNum
-//               member4 - studentNum
+//               Sherry Yang - 100637677
 //               Thaidan Goguen-Bogdanis - 100706090
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
