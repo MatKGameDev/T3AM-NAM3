@@ -2,7 +2,7 @@
 // Author:      Group 8 - <T34M N4M3>: 
 //               Mathew Kostrzewa - 100591924
 //               member2 - studentNum
-//               member3 - studentNum
+//               Hersh Sheth - 100701911
 //               Sherry Yang - 100637677
 //               Thaidan Goguen-Bogdanis - 100706090
 // Date:        Oct 9, 2018
