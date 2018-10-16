@@ -4,7 +4,7 @@
 //               member2 - studentNum
 //               member3 - studentNum
 //               member4 - studentNum
-//               member5 - studentNum
+//               Thaidan Goguen-Bogdanis - 100706090
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 
