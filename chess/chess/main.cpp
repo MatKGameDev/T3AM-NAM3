@@ -1,7 +1,7 @@
 // Filename:    main.cpp
 // Author:      Group 8 - <T34M N4M3>: 
 //               Mathew Kostrzewa - 100591924
-//               member2 - studentNum
+//               Evyn Brouwer - 100702629
 //               Hersh Sheth - 100701911
 //               Sherry Yang - 100637677
 //               Thaidan Goguen-Bogdanis - 100706090
@@ -54,6 +54,7 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 
 int main()
 {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	RECT r;
@@ -160,42 +161,50 @@ void drawBoard()
 				   //uses * chars to define boarders
 				   //leave 1 block space in every direction around the pieces
 				   //uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
-	std::cout
-		<< "\n"
-		<< "      A     B     C     D     E     F     G     H\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 1 *  " << chessBoard[0][0][0] << "  *  " << chessBoard[0][1][0] << "  *  " << chessBoard[0][2][0] << "  *  " << chessBoard[0][3][0] << "  *  " << chessBoard[0][4][0] << "  *  " << chessBoard[0][5][0] << "  *  " << chessBoard[0][6][0] << "  *  " << chessBoard[0][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 2 *  " << chessBoard[1][0][0] << "  *  " << chessBoard[1][1][0] << "  *  " << chessBoard[1][2][0] << "  *  " << chessBoard[1][3][0] << "  *  " << chessBoard[1][4][0] << "  *  " << chessBoard[1][5][0] << "  *  " << chessBoard[1][6][0] << "  *  " << chessBoard[1][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 3 *  " << chessBoard[2][0][0] << "  *  " << chessBoard[2][1][0] << "  *  " << chessBoard[2][2][0] << "  *  " << chessBoard[2][3][0] << "  *  " << chessBoard[2][4][0] << "  *  " << chessBoard[2][5][0] << "  *  " << chessBoard[2][6][0] << "  *  " << chessBoard[2][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 4 *  " << chessBoard[3][0][0] << "  *  " << chessBoard[3][1][0] << "  *  " << chessBoard[3][2][0] << "  *  " << chessBoard[3][3][0] << "  *  " << chessBoard[3][4][0] << "  *  " << chessBoard[3][5][0] << "  *  " << chessBoard[3][6][0] << "  *  " << chessBoard[3][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 5 *  " << chessBoard[4][0][0] << "  *  " << chessBoard[4][1][0] << "  *  " << chessBoard[4][2][0] << "  *  " << chessBoard[4][3][0] << "  *  " << chessBoard[4][4][0] << "  *  " << chessBoard[4][5][0] << "  *  " << chessBoard[4][6][0] << "  *  " << chessBoard[4][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 6 *  " << chessBoard[5][0][0] << "  *  " << chessBoard[5][1][0] << "  *  " << chessBoard[5][2][0] << "  *  " << chessBoard[5][3][0] << "  *  " << chessBoard[5][4][0] << "  *  " << chessBoard[5][5][0] << "  *  " << chessBoard[5][6][0] << "  *  " << chessBoard[5][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 7 *  " << chessBoard[6][0][0] << "  *  " << chessBoard[6][1][0] << "  *  " << chessBoard[6][2][0] << "  *  " << chessBoard[6][3][0] << "  *  " << chessBoard[6][4][0] << "  *  " << chessBoard[6][5][0] << "  *  " << chessBoard[6][6][0] << "  *  " << chessBoard[6][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 8 *  " << chessBoard[7][0][0] << "  *  " << chessBoard[7][1][0] << "  *  " << chessBoard[7][2][0] << "  *  " << chessBoard[7][3][0] << "  *  " << chessBoard[7][4][0] << "  *  " << chessBoard[7][5][0] << "  *  " << chessBoard[7][6][0] << "  *  " << chessBoard[7][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n";
+	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
+	for (int i=0;i<33;i++)
+	{
+		if (i%4==0)
+		{
+			std::cout << "   *************************************************\n";
+		}
+		if (i % 4 == 1||i % 4 == 3)
+		{
+			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
+		}
+		if (i % 4 == 2)
+		{
+			std::cout << " "<<i/4+1<<" *  ";
+			for (int n=0;n<15;n++)
+			{
+				if (n%2==0)
+				{
+					if (chessBoard[i / 4][n / 2].length()==2)
+					{
+						if (chessBoard[i / 4][n / 2][1] == '1')
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
+						}
+						else
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
+						}
+						std::cout << chessBoard[i / 4][n / 2][0];
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					}
+					else
+					{
+						std::cout << chessBoard[i / 4][n / 2][0];
+					}
+				}
+				else
+				{
+					std::cout << "  *  ";
+				}
+			}
+			std::cout<< "  *\n";
+		}
+	}
 }
 
 //isValidPieceMovement function
