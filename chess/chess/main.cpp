@@ -1,10 +1,10 @@
 // Filename:    main.cpp
 // Author:      Group 8 - <T34M N4M3>: 
-//               Mathew Kostrzewa - 100591924
-//               Evyn Brouwer - 100702629
-//               Hersh Sheth - 100701911
-//               Sherry Yang - 100637677
-//               Thaidan Goguen-Bogdanis - 100706090
+//               100591924 - Mathew Kostrzewa
+//               100702629 - Evyn Brouwer
+//               100701911 - Hersh Sheth
+//               100637677 - Sherry Yang
+//               100706090 - Thaidan Goguen-Bogdanis
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 
@@ -32,8 +32,8 @@
 std::string chessBoard[8][8]; //a 2d array to represent the chess board, standard size is 8x8
 
 
-							  //initializeBoard function prototype
-							  //resets the logical chess board to place pieces at starting positions
+//initializeBoard function prototype
+//resets the logical chess board to place pieces at starting positions
 void initializeBoard();
 
 //drawBoard function prototype
@@ -64,7 +64,7 @@ int main()
 	initializeBoard(); //reset the chess board
 	drawBoard();       //display the chess board to the user
 
-					   // test piece validation and moving them around the board
+	// test piece validation and moving them around the board
 	std::string userInputStart;
 	std::string userInputEnd;
 	while (1)
@@ -215,7 +215,7 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
-													//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
+	//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
 	if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
 	{
 		//check for pawn
@@ -348,7 +348,7 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 	int rowDifference = startX - destinationX; //set the difference in the X coordinates
 	int colDifference = startY - destinationY; //set the difference in the Y coordinates
 
-											   //make sure there is some movement, but not on both the x and y axis
+	//make sure there is some movement, but not on both the x and y axis
 	if (!(rowDifference == 0 && colDifference == 0) && !(rowDifference != 0 && colDifference != 0))
 	{
 		returnValue = true;
@@ -411,7 +411,7 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	int rowDifference = startX - destinationX; //set the difference in the X coordinates
 	int colDifference = startY - destinationY; //set the difference in the Y coordinates
 
-											   //make sure there is some movement, and that the row and col differences are the same (take absolute value to ignore the sign)
+	//make sure there is some movement, and that the row and col differences are the same (take absolute value to ignore the sign)
 	if (!(rowDifference == 0 && colDifference == 0) && abs(rowDifference) == abs(colDifference))
 	{
 		returnValue = true;
