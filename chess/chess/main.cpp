@@ -157,27 +157,28 @@ void drawBoard()
 {
 	system("cls"); //clear the screen
 
-				   //identify each column with a letter and each row with a number
-				   //uses * chars to define boarders
-				   //leave 1 block space in every direction around the pieces
-				   //uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
+	//identify each column with a letter and each row with a number
+	//uses * chars to define boarders
+	//leave 1 block space in every direction around the pieces
+	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
+
 	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
-	for (int i=0;i<33;i++)
+	for (int i = 0; i < 33; i++)
 	{
-		if (i%4==0)
+		if (i % 4 == 0)
 		{
 			std::cout << "   *************************************************\n";
 		}
-		if (i % 4 == 1||i % 4 == 3)
+		if (i % 4 == 1 || i % 4 == 3)
 		{
 			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
 		}
 		if (i % 4 == 2)
 		{
-			std::cout << " "<<i/4+1<<" *  ";
-			for (int n=0;n<15;n++)
+			std::cout << " "<< i / 4 + 1 << " *  ";
+			for (int n = 0; n < 15; n++)
 			{
-				if (n%2==0)
+				if (n % 2 == 0)
 				{
 					if (chessBoard[i / 4][n / 2].length()==2)
 					{
