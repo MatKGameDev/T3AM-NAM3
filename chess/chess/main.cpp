@@ -1,10 +1,10 @@
 // Filename:    main.cpp
 // Author:      Group 8 - <T34M N4M3>: 
-//               Mathew Kostrzewa - 100591924
-//               member2 - studentNum
-//               member3 - studentNum
-//               member4 - studentNum
-//               member5 - studentNum
+//               100591924 - Mathew Kostrzewa
+//               100702629 - Evyn Brouwer
+//               100701911 - Hersh Sheth
+//               100637677 - Sherry Yang
+//               100706090 - Thaidan Goguen-Bogdanis
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 
@@ -13,11 +13,9 @@
 *  Validate player's entry for start and end coordinates
 *  Main menu screen
 *  How to play guide option on main menu
-*  Short message with last turn's action displayed after each move
 *  Properly structured 2 player gameplay
-*  Coloured pieces to specify owner for each piece
-*  Implement checks for check/stalemate
-*  Turn pawn into queen when it reaches the enemy's last row
+*  Implement checks for check/stalemate/checkmate
+*  Castling
 *
 * If time permits (lower priority TODOs):
 *  Play vs AI option
@@ -32,13 +30,17 @@
 std::string chessBoard[8][8]; //a 2d array to represent the chess board, standard size is 8x8
 
 
-							  //initializeBoard function prototype
-							  //resets the logical chess board to place pieces at starting positions
+//initializeBoard function prototype
+//resets the logical chess board to place pieces at starting positions
 void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
 void drawBoard();
+
+//getPieceType function prototype
+//takes in a char and returns the name of that piece based on the char
+std::string getPieceType(char pieceChar);
 
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
@@ -54,29 +56,34 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 
 int main()
 {
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	RECT r;
-	GetWindowRect(console, &r); //stores the console's current dimensions
-	MoveWindow(console, r.left, r.top, 470, 700, TRUE); // width, height
+	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
 
 	initializeBoard(); //reset the chess board
 	drawBoard();       //display the chess board to the user
 
-					   // test piece validation and moving them around the board
-	std::string userInputStart;
-	std::string userInputEnd;
+	// test piece validation and moving them around the board
+
+	std::string userInputStart; //user's input for the start location of the piece
+	std::string userInputEnd;   //user's input for the desired end location of the piece
+	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
+	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
+		std::cout << "\n " << previousTurnAction << std::endl;
+
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
 		//when testing the program, enter x,y coordinate. Do not enter the letter, instead enter it's number equivalent (ex. column A would be a y value of 1, B would be 2, H would be 8, etc.)
 		//example input (move second player's leftmost pawn up 2 spaces): 
 		// first line  - 1,7
 		// second line - 1,5
-		std::cout << "\nEnter the piece's starting position <x,y>: ";
+		std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
 		std::cin >> userInputStart;
-		std::cout << "\nEnter the desired end position <x,y>: ";
+		std::cout << "\n Enter the desired end position <x,y>: ";
 		std::cin >> userInputEnd;
 
 		//validate and move the piece to demo gameplay
@@ -87,10 +94,25 @@ int main()
 
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
+			//update the previous turn's action
+			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			//check if end location has an enemy piece
+			if (chessBoard[endY][endX] != "")
+				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
+
+			previousTurnAction += ".";
+
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
 		}
+
 		drawBoard(); //update board
+
+		//change which player's turn it is
+		if (playerNumber == 1)
+			playerNumber = 2;
+		else
+			playerNumber = 1;
 	}
 
 	system("pause");
@@ -156,46 +178,76 @@ void drawBoard()
 {
 	system("cls"); //clear the screen
 
-				   //identify each column with a letter and each row with a number
-				   //uses * chars to define boarders
-				   //leave 1 block space in every direction around the pieces
-				   //uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
-	std::cout
-		<< "\n"
-		<< "      A     B     C     D     E     F     G     H\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 1 *  " << chessBoard[0][0][0] << "  *  " << chessBoard[0][1][0] << "  *  " << chessBoard[0][2][0] << "  *  " << chessBoard[0][3][0] << "  *  " << chessBoard[0][4][0] << "  *  " << chessBoard[0][5][0] << "  *  " << chessBoard[0][6][0] << "  *  " << chessBoard[0][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 2 *  " << chessBoard[1][0][0] << "  *  " << chessBoard[1][1][0] << "  *  " << chessBoard[1][2][0] << "  *  " << chessBoard[1][3][0] << "  *  " << chessBoard[1][4][0] << "  *  " << chessBoard[1][5][0] << "  *  " << chessBoard[1][6][0] << "  *  " << chessBoard[1][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 3 *  " << chessBoard[2][0][0] << "  *  " << chessBoard[2][1][0] << "  *  " << chessBoard[2][2][0] << "  *  " << chessBoard[2][3][0] << "  *  " << chessBoard[2][4][0] << "  *  " << chessBoard[2][5][0] << "  *  " << chessBoard[2][6][0] << "  *  " << chessBoard[2][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 4 *  " << chessBoard[3][0][0] << "  *  " << chessBoard[3][1][0] << "  *  " << chessBoard[3][2][0] << "  *  " << chessBoard[3][3][0] << "  *  " << chessBoard[3][4][0] << "  *  " << chessBoard[3][5][0] << "  *  " << chessBoard[3][6][0] << "  *  " << chessBoard[3][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 5 *  " << chessBoard[4][0][0] << "  *  " << chessBoard[4][1][0] << "  *  " << chessBoard[4][2][0] << "  *  " << chessBoard[4][3][0] << "  *  " << chessBoard[4][4][0] << "  *  " << chessBoard[4][5][0] << "  *  " << chessBoard[4][6][0] << "  *  " << chessBoard[4][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 6 *  " << chessBoard[5][0][0] << "  *  " << chessBoard[5][1][0] << "  *  " << chessBoard[5][2][0] << "  *  " << chessBoard[5][3][0] << "  *  " << chessBoard[5][4][0] << "  *  " << chessBoard[5][5][0] << "  *  " << chessBoard[5][6][0] << "  *  " << chessBoard[5][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 7 *  " << chessBoard[6][0][0] << "  *  " << chessBoard[6][1][0] << "  *  " << chessBoard[6][2][0] << "  *  " << chessBoard[6][3][0] << "  *  " << chessBoard[6][4][0] << "  *  " << chessBoard[6][5][0] << "  *  " << chessBoard[6][6][0] << "  *  " << chessBoard[6][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< " 8 *  " << chessBoard[7][0][0] << "  *  " << chessBoard[7][1][0] << "  *  " << chessBoard[7][2][0] << "  *  " << chessBoard[7][3][0] << "  *  " << chessBoard[7][4][0] << "  *  " << chessBoard[7][5][0] << "  *  " << chessBoard[7][6][0] << "  *  " << chessBoard[7][7][0] << "  *\n"
-		<< "   *     *     *     *     *     *     *     *     *\n"
-		<< "   *************************************************\n";
+	//identify each column with a letter and each row with a number
+	//uses * chars to define boarders
+	//leave 1 block space in every direction around the pieces
+	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
+
+	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
+	for (int i = 0; i < 33; i++)
+	{
+		if (i % 4 == 0)
+		{
+			std::cout << "   *************************************************\n";
+		}
+		if (i % 4 == 1 || i % 4 == 3)
+		{
+			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
+		}
+		if (i % 4 == 2)
+		{
+			std::cout << " "<< i / 4 + 1 << " *  ";
+			for (int n = 0; n < 15; n++)
+			{
+				if (n % 2 == 0)
+				{
+					if (chessBoard[i / 4][n / 2].length()==2)
+					{
+						if (chessBoard[i / 4][n / 2][1] == '1')
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
+						}
+						else
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
+						}
+						std::cout << chessBoard[i / 4][n / 2][0];
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					}
+					else
+					{
+						std::cout << chessBoard[i / 4][n / 2][0];
+					}
+				}
+				else
+				{
+					std::cout << "  *  ";
+				}
+			}
+			std::cout<< "  *\n";
+		}
+	}
+}
+
+//getPieceType function
+//converts a char into a string to represent a piece
+std::string getPieceType(char pieceChar)
+{
+	std::string pieceString = "";
+
+	//determine piece name based on the char
+	if (pieceChar == 'P')
+		pieceString = "Pawn";
+	else if (pieceChar == 'N')
+		pieceString = "Knight";
+	else if (pieceChar == 'B')
+		pieceString = "Bishop";
+	else if (pieceChar == 'Q')
+		pieceString = "Queen";
+	else if (pieceChar == 'K')
+		pieceString = "King";
+
+	return pieceString;
 }
 
 //isValidPieceMovement function
@@ -205,7 +257,7 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
-													//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
+	//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
 	if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
 	{
 		//check for pawn
@@ -244,6 +296,10 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 						}
 					}
 				}
+
+				//check if pawn had a valid movement and reached the end of the enemy's board
+				if (returnValue == true && destinationY == 7)
+					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
 			else //pawn belongs to player 2
 			{
@@ -277,6 +333,10 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 						}
 					}
 				}
+
+				//check if pawn had a valid movement and reached the end of the enemy's board
+				if (returnValue == true && destinationY == 0)
+					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
 		}
 
@@ -338,7 +398,7 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 	int rowDifference = startX - destinationX; //set the difference in the X coordinates
 	int colDifference = startY - destinationY; //set the difference in the Y coordinates
 
-											   //make sure there is some movement, but not on both the x and y axis
+	//make sure there is some movement, but not on both the x and y axis
 	if (!(rowDifference == 0 && colDifference == 0) && !(rowDifference != 0 && colDifference != 0))
 	{
 		returnValue = true;
@@ -401,7 +461,7 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	int rowDifference = startX - destinationX; //set the difference in the X coordinates
 	int colDifference = startY - destinationY; //set the difference in the Y coordinates
 
-											   //make sure there is some movement, and that the row and col differences are the same (take absolute value to ignore the sign)
+	//make sure there is some movement, and that the row and col differences are the same (take absolute value to ignore the sign)
 	if (!(rowDifference == 0 && colDifference == 0) && abs(rowDifference) == abs(colDifference))
 	{
 		returnValue = true;
