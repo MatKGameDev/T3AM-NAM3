@@ -13,11 +13,9 @@
 *  Validate player's entry for start and end coordinates
 *  Main menu screen
 *  How to play guide option on main menu
-*  Short message with last turn's action displayed after each move
 *  Properly structured 2 player gameplay
-*  Coloured pieces to specify owner for each piece
-*  Implement checks for check/stalemate
-*  Turn pawn into queen when it reaches the enemy's last row
+*  Implement checks for check/stalemate/checkmate
+*  Castling
 *
 * If time permits (lower priority TODOs):
 *  Play vs AI option
@@ -40,6 +38,10 @@ void initializeBoard();
 //draws out a neatly formatted chess board with pieces dynamically placed
 void drawBoard();
 
+//getPieceType function prototype
+//takes in a char and returns the name of that piece based on the char
+std::string getPieceType(char pieceChar);
+
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
 bool isValidPieceMovement(int startX, int startY, int destinationX, int destinationY);
@@ -55,29 +57,33 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	RECT r;
-	GetWindowRect(console, &r); //stores the console's current dimensions
-	MoveWindow(console, r.left, r.top, 470, 700, TRUE); // width, height
+	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
 
 	initializeBoard(); //reset the chess board
 	drawBoard();       //display the chess board to the user
 
 	// test piece validation and moving them around the board
-	std::string userInputStart;
-	std::string userInputEnd;
+
+	std::string userInputStart; //user's input for the start location of the piece
+	std::string userInputEnd;   //user's input for the desired end location of the piece
+	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
+	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
+		std::cout << "\n " << previousTurnAction << std::endl;
+
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
 		//when testing the program, enter x,y coordinate. Do not enter the letter, instead enter it's number equivalent (ex. column A would be a y value of 1, B would be 2, H would be 8, etc.)
 		//example input (move second player's leftmost pawn up 2 spaces): 
 		// first line  - 1,7
 		// second line - 1,5
-		std::cout << "\nEnter the piece's starting position <x,y>: ";
+		std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
 		std::cin >> userInputStart;
-		std::cout << "\nEnter the desired end position <x,y>: ";
+		std::cout << "\n Enter the desired end position <x,y>: ";
 		std::cin >> userInputEnd;
 
 		//validate and move the piece to demo gameplay
@@ -88,10 +94,25 @@ int main()
 
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
+			//update the previous turn's action
+			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			//check if end location has an enemy piece
+			if (chessBoard[endY][endX] != "")
+				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
+
+			previousTurnAction += ".";
+
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
 		}
+
 		drawBoard(); //update board
+
+		//change which player's turn it is
+		if (playerNumber == 1)
+			playerNumber = 2;
+		else
+			playerNumber = 1;
 	}
 
 	system("pause");
@@ -208,6 +229,27 @@ void drawBoard()
 	}
 }
 
+//getPieceType function
+//converts a char into a string to represent a piece
+std::string getPieceType(char pieceChar)
+{
+	std::string pieceString = "";
+
+	//determine piece name based on the char
+	if (pieceChar == 'P')
+		pieceString = "Pawn";
+	else if (pieceChar == 'N')
+		pieceString = "Knight";
+	else if (pieceChar == 'B')
+		pieceString = "Bishop";
+	else if (pieceChar == 'Q')
+		pieceString = "Queen";
+	else if (pieceChar == 'K')
+		pieceString = "King";
+
+	return pieceString;
+}
+
 //isValidPieceMovement function
 //sees if a piece can be moved from (startX, startY) to (destinationX, destinationY)
 bool isValidPieceMovement(int startX, int startY, int destinationX, int destinationY)
@@ -254,6 +296,10 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 						}
 					}
 				}
+
+				//check if pawn had a valid movement and reached the end of the enemy's board
+				if (returnValue == true && destinationY == 7)
+					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
 			else //pawn belongs to player 2
 			{
@@ -287,6 +333,10 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 						}
 					}
 				}
+
+				//check if pawn had a valid movement and reached the end of the enemy's board
+				if (returnValue == true && destinationY == 0)
+					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
 		}
 
