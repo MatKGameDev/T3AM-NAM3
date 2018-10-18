@@ -13,7 +13,6 @@
 * Basic TODOs:
 *  Validate player's entry for start and end coordinates
 *  Main menu screen
-*  How to play guide option on main menu
 *  Properly structured 2 player gameplay
 *  Implement checks for check/stalemate/checkmate
 *  Castling
@@ -28,6 +27,7 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
+#include "Events.h"
 
 std::string chessBoard[8][8]; //a 2d array to represent the chess board, standard size is 8x8
 
@@ -60,6 +60,10 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
 
+//isEvent function prototype
+//returns true or false depending on if the parameter is a valid event or not
+bool isEvent(unsigned char event);
+
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
@@ -76,7 +80,7 @@ int main()
 	std::string userInputStart; //user's input for the start location of the piece
 	std::string userInputEnd;   //user's input for the desired end location of the piece
 	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
-	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
+	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 	while (1)
 	{
 		std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
@@ -603,4 +607,11 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	}
 
 	return returnValue;
+}
+
+//isEvent function
+//checks if a valid key was pressed
+bool isEvent(unsigned char event)
+{
+	return GetAsyncKeyState(event);
 }
