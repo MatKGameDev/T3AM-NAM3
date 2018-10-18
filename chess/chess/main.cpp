@@ -64,6 +64,11 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
 
+
+
+
+
+
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
 bool isInputPattern(const std::string& input);
