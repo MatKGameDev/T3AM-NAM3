@@ -64,9 +64,13 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
 
-//isInputValid function prototype
+//isInputPattern function prototype
 //check user input correct format 1-8,1-8
-bool isInputValid(const std::string& input);
+bool isInputPattern(const std::string& input);
+
+//isInputValid function prototype
+//check both user input is valid and ask user input another x,y
+void isInputValid(std::string &userInput, std::string msg);
 
 int main()
 {
@@ -83,11 +87,14 @@ int main()
 
 	std::string userInputStart; //user's input for the start location of the piece
 	std::string userInputEnd;   //user's input for the desired end location of the piece
+	std::string startMsg;       //message for ask user input start position
+	std::string endMsg;         //message for ask user input end position
 	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
 	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 
 	while (1)
 	{
+		bool valid = false;		    //initialize valid to false
 		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
 
 		//***NOTE*** 
@@ -97,35 +104,40 @@ int main()
 		// first line  - 1,7
 		// second line - 1,5
 
-		std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
-		std::cin >> userInputStart;
+		while (valid == false) {
 
-		// validate the input
-		while (isInputValid(userInputStart) == false) {
+			// perpare messages for output
+			startMsg = " Enter your piece's starting position <x,y>: ";
+			endMsg = "\n Enter the desired end position <x,y>: ";
 
-			std::cout << "Invalid Input \n"; // reset cin for next input
-			std::cin.clear();
-			// ignore the user input, passing in the maximize size a user could input to clear
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
+			std::cin >> userInputStart;
 
-			std::cout << "Enter your piece's starting position <x,y>: ";
-			std::cin >> userInputStart;// ask user input the valid x,y
-		}
+			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
 
-		std::cout << "\n Enter the desired end position <x,y>: ";
-		std::cin >> userInputEnd;
-
-		while (isInputValid(userInputEnd) == false) {
-
-			std::cout << "Invalid Input \n";// reset cin for next input
-			std::cin.clear();
-			// ignore the user input, passing in the maximize size a user could input to clear
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			std::cout << "\n Enter the desired end position <x,y>: ";
 			std::cin >> userInputEnd;
+
+			isInputValid(userInputEnd, endMsg);
+
+			// user input passed the pattern check, check for the movement
+			int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+			int startY = userInputStart[2] - '0' - 1;
+			int endX = userInputEnd[0] - '0' - 1;
+			int endY = userInputEnd[2] - '0' - 1;
+
+			// validate the movement
+			if (isValidPieceMovement(startX, startY, endX, endY) == false) {
+
+				std::cout << " Invalid movement \n";
+				valid = false;
+			}
+			else {
+				valid = true;
+			}
+
 		}
 
-		//validate and move the piece to demo gameplay
 		int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 		int startY = userInputStart[2] - '0' - 1;
 		int endX = userInputEnd[0] - '0' - 1;
@@ -134,8 +146,8 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
-				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
+				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
 				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
@@ -145,6 +157,8 @@ int main()
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
 		}
+
+
 
 		drawBoard(); //update board
 
@@ -232,16 +246,16 @@ void drawBoard()
 		}
 		if (i % 4 == 1 || i % 4 == 3)
 		{
-			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
+			std::cout << "   *     *     *     *     *     *     *     *     *\n";
 		}
 		if (i % 4 == 2)
 		{
-			std::cout << " "<< i / 4 + 1 << " *  ";
+			std::cout << " " << i / 4 + 1 << " *  ";
 			for (int n = 0; n < 15; n++)
 			{
 				if (n % 2 == 0)
 				{
-					if (chessBoard[i / 4][n / 2].length()==2)
+					if (chessBoard[i / 4][n / 2].length() == 2)
 					{
 						if (chessBoard[i / 4][n / 2][1] == '1')
 						{
@@ -264,7 +278,7 @@ void drawBoard()
 					std::cout << "  *  ";
 				}
 			}
-			std::cout<< "  *\n";
+			std::cout << "  *\n";
 		}
 	}
 }
@@ -636,9 +650,9 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	return returnValue;
 }
 
-//isInputValid function use regular expression to 
+//isInputPattern function use regular expression to 
 //determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
-bool isInputValid(const std::string& input)
+bool isInputPattern(const std::string& input)
 {
 	// define a regular expression
 	const std::regex pattern
@@ -646,4 +660,22 @@ bool isInputValid(const std::string& input)
 
 	// try to match the string with the regular expression
 	return std::regex_match(input, pattern);
+}
+
+//isInputValid function run while loop to clear user input 
+//and ask for valid Input from user
+void isInputValid(std::string &userInput, std::string msg)
+{
+
+	while (isInputPattern(userInput) == false) {
+
+		std::cout << " Invalid Input \n";
+		std::cin.clear(); // reset cin for next input
+		// ignore the user input, passing in the maximize size a user could input to clear
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		std::cout << msg;
+		std::cin >> userInput;// ask user input the valid x,y
+	}
+
 }
