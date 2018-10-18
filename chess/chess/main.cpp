@@ -9,7 +9,8 @@
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 
 /*
-* TODO: (Incomplete list)
+* TODO (Incomplete list)
+* Basic TODOs:
 *  Validate player's entry for start and end coordinates
 *  Main menu screen
 *  How to play guide option on main menu
@@ -17,10 +18,11 @@
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
-* If time permits (lower priority TODOs):
+* If time permits (Advanced TODOs):
 *  Play vs AI option
-*  Allow the user to perform moves with keyboard (or mouse, whichever is easier)
+*  Allow the user to perform moves with mouse
 *  Time limit for turns
+*  Sound FX/Music
 */
 
 #include <iostream>
@@ -37,6 +39,10 @@ void initializeBoard();
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
 void drawBoard();
+
+//howTo function prototype
+//displays the menu for a guide on the rules of the game and the pieces
+void howTo();
 
 //getPieceType function prototype
 //takes in a char and returns the name of that piece based on the char
@@ -73,7 +79,7 @@ int main()
 	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
-		std::cout << "\n " << previousTurnAction << std::endl;
+		std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
 
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
@@ -95,13 +101,14 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
+				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
 				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
-
 			previousTurnAction += ".";
 
+			//set the new position for the piece and clear the old position
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
 		}
@@ -229,6 +236,87 @@ void drawBoard()
 	}
 }
 
+//howTo function
+//displays the guide menu with various options to choose from
+void howTo()
+{
+	char response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
+
+	while (1)
+	{
+		system("cls"); //clear screen every time it loops
+
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
+		std::cout << "1. Pawns\n2. Rooks\n3. Knights\n4. Bishops\n5. Queen\n6. King\n7. General rules\n8. Return to main menu\n";
+		std::cin >> response;
+
+		system("cls"); //clear screen every time the user selects something, to look less cluttered
+
+		//formatting for the couts in the if statements lets the program neatly display each line of text on one line
+
+		if (response == '1')
+		{
+			std::cout << "Pawns, represented by a P, can move two spaces directly\n";
+			std::cout << "forwards on their first turn, and otherwise can move\n";
+			std::cout << "either one space forward to an empty space, or diagonally\n";
+			std::cout << "forwards one space, but only to capture another piece. \nPawns may also become queens by reaching the enemy team's first row.";
+		}
+		else if (response == '2')
+		{
+			std::cout << "Rooks, represented by an R, can only move directly\n";
+			std::cout << "horizontally or vertically any amount of spaces, as long\n";
+			std::cout << "as there are no pieces in between the start and end.";
+		}
+		else if (response == '3')
+		{
+			std::cout << "Knights, represented by an N, can move two spaces \n";
+			std::cout << "vertically or horizontally and one space perpendicular to that.";
+		}
+		else if (response == '4')
+		{
+			std::cout << "Bishops, represented by a B, can move diagonally any\n";
+			std::cout << "number of spaces, as long as there are no pieces in\n";
+			std::cout << "between the start and end of its move.";
+		}
+		else if (response == '5')
+		{
+			std::cout << "Queens, represented by a Q, can move any number of spaces\n";
+			std::cout << "horizontally, vertically, or diagonally, as long as there\n";
+			std::cout << "are no pieces in between the start and end.";
+		}
+		else if (response == '6')
+		{
+			std::cout << "The king, represented by a K, can move one space in any\n";
+			std::cout << "direction. The game is won by capturing the opponent\'s\n";
+			std::cout << "king, or lost when yours is captured.";
+		}
+		else if (response == '7')
+		{
+			std::cout << "Players can capture the opponent\'s game pieces by moving\n";
+			std::cout << "their own piece onto the same tile as the opponent\'s\n";
+			std::cout << "piece. A player wins when they capture the opponent\'s\n";
+			std::cout << "king, resulting in a checkmate. The only other outcome is\n";
+			std::cout << "a stalemate, where neither player can possibly capture\n";
+			std::cout << "the other\'s king.";
+		}
+		else if (response == '8')
+		{
+			break; //break the loop if the user enters 8
+		}
+		else
+		{
+			std::cout << "That is not a valid number."; //displays this if the user enters anything other than the above values for response
+		}
+
+		std::cout << "\n\n\n"; //makes sure the prompt from system("pause") is on a new line
+
+		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
+	}
+
+	//currently, breaking the loop will just move to the next part of the program, but
+	//I think it should probably call the main menu function when that exists.
+}
+
 //getPieceType function
 //converts a char into a string to represent a piece
 std::string getPieceType(char pieceChar)
@@ -238,6 +326,8 @@ std::string getPieceType(char pieceChar)
 	//determine piece name based on the char
 	if (pieceChar == 'P')
 		pieceString = "Pawn";
+	else if (pieceChar == 'R')
+		pieceString = "Rook";
 	else if (pieceChar == 'N')
 		pieceString = "Knight";
 	else if (pieceChar == 'B')
