@@ -20,7 +20,7 @@
 *
 * If time permits (Advanced TODOs):
 *  Play vs AI option
-*  Allow the user to perform moves with keyboard (or mouse, whichever is easier)
+*  Allow the user to perform moves with mouse
 *  Time limit for turns
 *  Sound FX/Music
 */
@@ -79,7 +79,7 @@ int main()
 	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
-		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
+		std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
 
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
@@ -101,7 +101,7 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
+			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
 				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
@@ -326,6 +326,8 @@ std::string getPieceType(char pieceChar)
 	//determine piece name based on the char
 	if (pieceChar == 'P')
 		pieceString = "Pawn";
+	else if (pieceChar == 'R')
+		pieceString = "Rook";
 	else if (pieceChar == 'N')
 		pieceString = "Knight";
 	else if (pieceChar == 'B')
