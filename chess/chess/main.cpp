@@ -7,6 +7,7 @@
 //               100706090 - Thaidan Goguen-Bogdanis
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
+//References: https://www.youtube.com/watch?v=8fCwUwI31Dk,
 
 /*
 * TODO (Incomplete list)
@@ -191,47 +192,47 @@ void drawBoard()
 	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
 
 	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
-	for (int i = 0; i < 33; i++)
+	for (int i = 0; i < 33; i++)//for the size of the board
 	{
-		if (i % 4 == 0)
+		if (i % 4 == 0)//prints out the horiztonal border
 		{
 			std::cout << "   *************************************************\n";
 		}
-		if (i % 4 == 1 || i % 4 == 3)
+		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
 		{
 			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
 		}
-		if (i % 4 == 2)
+		if (i % 4 == 2)//print out the pieces 
 		{
-			std::cout << " "<< i / 4 + 1 << " *  ";
-			for (int n = 0; n < 15; n++)
+			std::cout << " "<< i / 4 + 1 << " *  ";//print the row identifier
+			for (int n = 0; n < 15; n++)//print out the row of pieces
 			{
-				if (n % 2 == 0)
+				if (n % 2 == 0)//if a piece
 				{
-					if (chessBoard[i / 4][n / 2].length()==2)
+					if (chessBoard[i / 4][n / 2].length()==2)//validation to make sure the piece exists
 					{
-						if (chessBoard[i / 4][n / 2][1] == '1')
+						if (chessBoard[i / 4][n / 2][1] == '1')//if team 1
 						{
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);//set the text to blue
 						}
-						else
+						else//if team 2
 						{
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
-						std::cout << chessBoard[i / 4][n / 2][0];
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+						std::cout << chessBoard[i / 4][n / 2][0];//print out the piece type
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);//reset the colour of the text
 					}
-					else
+					else//if empty
 					{
-						std::cout << chessBoard[i / 4][n / 2][0];
+						std::cout << chessBoard[i / 4][n / 2][0];//print out a space
 					}
 				}
 				else
 				{
-					std::cout << "  *  ";
+					std::cout << "  *  ";//print a piece of the vertical border
 				}
 			}
-			std::cout<< "  *\n";
+			std::cout<< "  *\n";//the end of the row
 		}
 	}
 }
