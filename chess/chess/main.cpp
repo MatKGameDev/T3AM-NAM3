@@ -9,7 +9,8 @@
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 
 /*
-* TODO: (Incomplete list)
+* TODO (Incomplete list)
+* Basic TODOs:
 *  Validate player's entry for start and end coordinates
 *  Main menu screen
 *  How to play guide option on main menu
@@ -17,10 +18,11 @@
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
-* If time permits (lower priority TODOs):
+* If time permits (Advanced TODOs):
 *  Play vs AI option
 *  Allow the user to perform moves with keyboard (or mouse, whichever is easier)
 *  Time limit for turns
+*  Sound FX/Music
 */
 
 #include <iostream>
@@ -77,7 +79,7 @@ int main()
 	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
-		std::cout << "\n " << previousTurnAction << std::endl;
+		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
 
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
@@ -99,13 +101,14 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
+				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
 				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
-
 			previousTurnAction += ".";
 
+			//set the new position for the piece and clear the old position
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
 		}
@@ -243,7 +246,7 @@ void howTo()
 	{
 		system("cls"); //clear screen every time it loops
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n";
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
 		std::cout << "1. Pawns\n2. Rooks\n3. Knights\n4. Bishops\n5. Queen\n6. King\n7. General rules\n8. Return to main menu\n";
 		std::cin >> response;
 
@@ -305,7 +308,7 @@ void howTo()
 			std::cout << "That is not a valid number."; //displays this if the user enters anything other than the above values for response
 		}
 
-		std::cout << std::endl; //makes sure the prompt from system("pause") is on a new line
+		std::cout << "\n\n\n"; //makes sure the prompt from system("pause") is on a new line
 
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
