@@ -64,15 +64,9 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
 
-<<<<<<< HEAD
 //isEvent function prototype
 //returns true or false depending on if the parameter is a valid event or not
 bool isEvent(unsigned char event);
-=======
-
-
-
-
 
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
@@ -81,7 +75,6 @@ bool isInputPattern(const std::string& input);
 //isInputValid function prototype
 //check both user input is valid and ask user input another x,y
 void isInputValid(std::string &userInput, std::string msg);
->>>>>>> Sherry
 
 int main()
 {
@@ -104,12 +97,8 @@ int main()
 	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
 	while (1)
 	{
-<<<<<<< HEAD
-		std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
-=======
 		bool valid = false;		    //initialize valid to false
 		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
->>>>>>> Sherry
 
 		//***NOTE*** 
 		//this is a demo and will need to be refined later on to make it more user friendly
@@ -160,13 +149,10 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-<<<<<<< HEAD
+
 			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
 				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
-=======
-			previousTurnAction = "Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
-				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
->>>>>>> Sherry
+
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
 				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
@@ -706,8 +692,6 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	}
 
 	return returnValue;
-<<<<<<< HEAD
-=======
 }
 
 //isInputPattern function use regular expression to 
@@ -737,6 +721,4 @@ void isInputValid(std::string &userInput, std::string msg)
 		std::cout << msg;
 		std::cin >> userInput;// ask user input the valid x,y
 	}
-
->>>>>>> Sherry
 }
