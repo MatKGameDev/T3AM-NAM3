@@ -244,57 +244,75 @@ void drawBoard()
 //displays the guide menu with various options to choose from
 void howTo()
 {
-	char response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
+	std::string response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
 
 	while (1)
 	{
 		system("cls"); //clear screen every time it loops
 
 		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
-		std::cout << "1. Pawns\n2. Rooks\n3. Knights\n4. Bishops\n5. Queen\n6. King\n7. General rules\n8. Return to main menu\n";
+		std::cout << "1. Terminology\n2. Pawns\n3. Rooks\n4. Knights\n5. Bishops\n6. Queen\n7. King\n8. General rules\n9. Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
 		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
 
 		//formatting for the couts in the if statements lets the program neatly display each line of text on one line
 
-		if (response == '1')
+		if (response == "1")
+		{
+			std::cout << "Piece:     a piece is any of the letters on the board.\n";
+			std::cout << "\nTile:      a tile is a space where a piece can move.\n";
+			std::cout << "\nCapture:   a piece is captured when another piece lands on\n";
+			std::cout << "           its tile. Can also be called \'taking.\'\n";
+			std::cout << "\nAttack:    a tile is being attacked if another piece could\n";
+			std::cout << "           capture a piece on that tile.\n";
+			std::cout << "\nCheck:     the king is in check if it can be captured on\n";
+			std::cout << "           the next turn.\n";
+			std::cout << "\nCheckmate: the game results in a checkmate if the king\n";
+			std::cout << "           cannot move out of check, and the piece keeping\n";
+			std::cout << "           it in check cannot be captured.\n";
+			std::cout << "\nStalemate: the game results in a stalemate if the player\n";
+			std::cout << "           whose turn it is to move is not in check but\n";
+			std::cout << "           cannot move without moving into check.";
+		}
+		else if (response == "2")
 		{
 			std::cout << "Pawns, represented by a P, can move two spaces directly\n";
 			std::cout << "forwards on their first turn, and otherwise can move\n";
 			std::cout << "either one space forward to an empty space, or diagonally\n";
-			std::cout << "forwards one space, but only to capture another piece. \nPawns may also become queens by reaching the enemy team's first row.";
+			std::cout << "forwards one space, but only to capture another piece.\n";
+			std::cout << "Pawns may also become queens by reaching the enemy team's first row.";
 		}
-		else if (response == '2')
+		else if (response == "3")
 		{
 			std::cout << "Rooks, represented by an R, can only move directly\n";
 			std::cout << "horizontally or vertically any amount of spaces, as long\n";
 			std::cout << "as there are no pieces in between the start and end.";
 		}
-		else if (response == '3')
+		else if (response == "4")
 		{
 			std::cout << "Knights, represented by an N, can move two spaces \n";
 			std::cout << "vertically or horizontally and one space perpendicular to that.";
 		}
-		else if (response == '4')
+		else if (response == "5")
 		{
 			std::cout << "Bishops, represented by a B, can move diagonally any\n";
 			std::cout << "number of spaces, as long as there are no pieces in\n";
 			std::cout << "between the start and end of its move.";
 		}
-		else if (response == '5')
+		else if (response == "6")
 		{
 			std::cout << "Queens, represented by a Q, can move any number of spaces\n";
 			std::cout << "horizontally, vertically, or diagonally, as long as there\n";
 			std::cout << "are no pieces in between the start and end.";
 		}
-		else if (response == '6')
+		else if (response == "7")
 		{
 			std::cout << "The king, represented by a K, can move one space in any\n";
 			std::cout << "direction. The game is won by capturing the opponent\'s\n";
 			std::cout << "king, or lost when yours is captured.";
 		}
-		else if (response == '7')
+		else if (response == "8")
 		{
 			std::cout << "Players can capture the opponent\'s game pieces by moving\n";
 			std::cout << "their own piece onto the same tile as the opponent\'s\n";
@@ -303,9 +321,31 @@ void howTo()
 			std::cout << "a stalemate, where neither player can possibly capture\n";
 			std::cout << "the other\'s king.";
 		}
-		else if (response == '8')
+		else if (response == "9")
 		{
-			break; //break the loop if the user enters 8
+			std::cout << "Player 1\'s pieces are represented by the blue letters.\n";
+			std::cout << "Player 2\'s pieces are represented by the red letters.\n";
+			std::cout << "Player 1 starts at the top, and always moves first.";
+		}
+		else if (response == "10")
+		{
+			std::cout << "Castling is a special move that a king can do.\n";
+			std::cout << "\nThe king can castle to the left or right. To castle, the\n";
+			std::cout << "player moves their king two spaces to the right or left,\n";
+			std::cout << "and the rook is moved to the opposite side of the king.\n";
+			std::cout << "\n\nRestrictions:\n";
+			std::cout << "\nThe king cannot castle if it has moved, or if the rook it\n";
+			std::cout << "is castling has moved.\n";
+			std::cout << "\nThe king cannot castle out of check.\n";
+			std::cout << "\nThe king cannot castle into check.\n";
+			std::cout << "\nThe king cannot castle if their are any pieces between it\n";
+			std::cout << "and the rook it is using to castle.\n";
+			std::cout << "\nThe king cannot castle  across a space that is being\n";
+			std::cout << "attacked.";
+		}
+		else if (response == "11")
+		{
+			break; //break the loop if the user enters 11
 		}
 		else
 		{
@@ -316,9 +356,6 @@ void howTo()
 
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
-
-	//currently, breaking the loop will just move to the next part of the program, but
-	//I think it should probably call the main menu function when that exists.
 }
 
 //getPieceType function
