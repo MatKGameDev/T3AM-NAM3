@@ -46,7 +46,7 @@ void howTo();
 
 //getPieceType function prototype
 //takes in a char and returns the name of that piece based on the char
-std::string getPieceType(char pieceChar);
+std::string getPieceName(char pieceChar);
 
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
@@ -63,6 +63,14 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 //isEvent function prototype
 //returns true or false depending on if the parameter is a valid event or not
 bool isEvent(unsigned char event);
+
+//playerVsPlayer function prototype
+//allows two players to play chess against each other
+void playerVsPlayer();
+
+//playerVsComputer function prototype
+//allows a player to play chess against a computer
+void playerVsComputer();
 
 int main()
 {
@@ -86,22 +94,25 @@ int main()
 		if (isEvent(Events::Mouse_Left))
 		{
 			//if a spot on the chess board was clicked
-				//if chess board coordinates' start positions arent set
+				//store the x and y coordinates of the position on the chess board that was clicked
+
+				//if chess board coordinates' start positions arent set AND the player clicked on a friendly piece
 					//set x and y coordinates for chess board start positions based on the cursor x and y positions
 
 				//else chess board coordinates' start positions are set
 					//set x and y coordinates for chess board end positions based on the cursor x and y positions
+					//do piece validation and all that other fun stuff (we already have this code)
 
 					//std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
 
 					//if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 					//{
 					//	//update the previous turn's action
-					//	previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
+					//	previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
 					//		" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 					//	//check if end location has an enemy piece
 					//	if (chessBoard[endY][endX] != "")
-					//		previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
+					//		previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
 					//	previousTurnAction += ".";
 
 					//	//set the new position for the piece and clear the old position
@@ -314,27 +325,27 @@ void howTo()
 	//I think it should probably call the main menu function when that exists.
 }
 
-//getPieceType function
+//getPieceName function
 //converts a char into a string to represent a piece
-std::string getPieceType(char pieceChar)
+std::string getPieceName(char pieceChar)
 {
-	std::string pieceString = "";
+	std::string pieceName = ""; //name of the piece to return
 
 	//determine piece name based on the char
 	if (pieceChar == 'P')
-		pieceString = "Pawn";
+		pieceName = "Pawn";
 	else if (pieceChar == 'R')
-		pieceString = "Rook";
+		pieceName = "Rook";
 	else if (pieceChar == 'N')
-		pieceString = "Knight";
+		pieceName = "Knight";
 	else if (pieceChar == 'B')
-		pieceString = "Bishop";
+		pieceName = "Bishop";
 	else if (pieceChar == 'Q')
-		pieceString = "Queen";
+		pieceName = "Queen";
 	else if (pieceChar == 'K')
-		pieceString = "King";
+		pieceName = "King";
 
-	return pieceString;
+	return pieceName;
 }
 
 //isValidPieceMovement function
@@ -607,4 +618,18 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 bool isEvent(unsigned char event)
 {
 	return GetAsyncKeyState(event);
+}
+
+//playerVsPlayer function
+//lets two players compete against eachother in a game
+void playerVsPlayer()
+{
+
+}
+
+//playerVsComputer function
+//lets a player compete against a computer in a game
+void playerVsComputer()
+{
+
 }
