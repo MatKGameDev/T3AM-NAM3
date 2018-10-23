@@ -47,7 +47,7 @@ void howTo();
 
 //getPieceType function prototype
 //takes in a char and returns the name of that piece based on the char
-std::string getPieceType(char pieceChar);
+std::string getPieceName(char pieceChar);
 
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
@@ -91,11 +91,15 @@ int main()
 	int endX;
 	int endY;
 
+	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+	std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
+
 	while (1)
 	{
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		ScreenToClient(GetConsoleWindow(), &cursorPos);
+
 		//if a spot on the chess board was clicked
 		if (isEvent(Events::Mouse_Right))
 		{
@@ -103,10 +107,11 @@ int main()
 			tempX = (cursorPos.x - 26) / 48;
 			tempY = (cursorPos.y - 46) / 63;
 
-			//if chess board coordinates' start positions arent set AND the player clicked on a friendly piece
+			//if chess board coordinates' start positions arent set
 			if (startX < 0 && startY < 0)
 			{
-				if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == char(playerNumber))
+				//if the player clicked on a friendly piece (convert player number to char to compare)
+				if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 				{
 					//set x and y coordinates for chess board start positions based on the cursor x and y positions
 					startX = tempX;
@@ -120,9 +125,8 @@ int main()
 				endX = tempX;
 				endY = tempY;
 
-				std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
-
-				if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
+				//if piece movement is valid, move it
+				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
 					//update the previous turn's action
 					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
@@ -144,13 +148,17 @@ int main()
 					else
 						playerNumber = 1;
 
+					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
+
 					//reset start x and y
 					startX = -1;
 					startY = -1;
 				}
 			}
 
-		Sleep(100);
+			Sleep(100);
+		}
 	}
 
 	std::cout << "\n\n";
@@ -388,7 +396,7 @@ void howTo()
 
 //getPieceType function
 //converts a char into a string to represent a piece
-std::string getPieceType(char pieceChar)
+std::string getPieceName(char pieceChar)
 {
 	std::string pieceString = "";
 
