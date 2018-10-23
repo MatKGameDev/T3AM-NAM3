@@ -646,10 +646,3 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 
 	return returnValue;
 }
-
-//isEvent function
-//checks if a valid key was pressed
-bool isEvent(unsigned char event)
-{
-	return GetAsyncKeyState(event);
-}
