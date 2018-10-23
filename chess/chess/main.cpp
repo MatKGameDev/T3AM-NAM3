@@ -26,9 +26,9 @@
 
 #include <iostream>
 #include <string>
-#include <regex>
 #include <Windows.h>
 #include "Events.h"
+#include <regex>
 
 // conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
 #undef max
