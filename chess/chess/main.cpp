@@ -119,7 +119,23 @@ int main()
 			startMsg = " Enter your piece's starting position <x,y>: ";
 			endMsg = "\n Enter the desired end position <x,y>: ";
 
-			std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
+			// colour highlight for player 
+			if (playerNumber == 1) {
+
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
+
+			    std::cout << "\n Player " << std::to_string(playerNumber);
+			}
+			else {
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
+
+				std::cout << "\n Player " << std::to_string(playerNumber);
+			}
+
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+
+			std::cout << " enter your piece's starting position <x,y>: ";
+			
 			std::cin >> userInputStart;
 
 			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
@@ -165,7 +181,6 @@ int main()
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
 			//update the previous turn's action
-
 			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
 				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 
