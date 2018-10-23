@@ -93,15 +93,60 @@ int main()
 		// first line  - 1,7
 		// second line - 1,5
 		std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
-		std::cin >> userInputStart;
+		int startX;
+		int startY;
+		int endX;
+		int endY;
+
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		ScreenToClient(GetConsoleWindow(),&cursorPos);
+		
+		bool mouseInput = true;
+		while (mouseInput)
+		{
+			if (isEvent(Events::Mouse_Right))
+			{
+				//std::cout << mouseX << std::endl;
+				//std::cout << mouseY << std::endl;
+				startX = (cursorPos.x -26)/48 ;
+				startY = (cursorPos.y -46)/63 ;
+				if ((startX >= 0 && startX < 8)&&(startY >= 0 && startY < 8))
+				{
+					mouseInput = false;
+				}
+			}
+			Sleep(100);
+		}
+		std::cout << startX << std::endl;
+		std::cout << startY << std::endl;
+
+		//std::cin >> userInputStart;
 		std::cout << "\n Enter the desired end position <x,y>: ";
-		std::cin >> userInputEnd;
+		mouseInput = true;
+		while (mouseInput)
+		{
+			if (isEvent(Events::Mouse_Right))
+			{
+				endX = (cursorPos.x - 26) / 48;
+				endY = (cursorPos.y - 46) / 63;
+				//std::cout << endX << std::endl;
+				//std::cout << endY << std::endl;
+				if ((endX >= 0 && endX < 8) && (endY >= 0 && endY < 8))
+				{
+					mouseInput = false;
+				}
+				std::cout << "this ran";
+			}
+			Sleep(100);
+		}
+		//std::cin >> userInputEnd;
 
 		//validate and move the piece to demo gameplay
-		int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		int startY = userInputStart[2] - '0' - 1;
-		int endX = userInputEnd[0] - '0' - 1;
-		int endY = userInputEnd[2] - '0' - 1;
+		//int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+		//int startY = userInputStart[2] - '0' - 1;
+		//int endX = userInputEnd[0] - '0' - 1;
+		//int endY = userInputEnd[2] - '0' - 1;
 
 		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 		{
@@ -645,4 +690,9 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	}
 
 	return returnValue;
+}
+
+bool isEvent(unsigned char event)
+{
+	return GetAsyncKeyState(event);
 }
