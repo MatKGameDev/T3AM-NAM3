@@ -75,8 +75,15 @@ void performComputerTurn();
 //moves a piece from the start location to the end location
 void movePiece(int startX, int startY, int destinationX, int destinationY);
 
+//toggleMusic function prototype
+//toggles music on or off
+//music taken from royalty free website: www.purple-planet.com/gentle
+void toggleMusic();
+
 int main()
 {
+	toggleMusic();
+
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
@@ -625,7 +632,7 @@ bool isEvent(unsigned char event)
 
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
-void playGame(bool isVersusComputer = false)
+void playGame(bool isVersusComputer)
 {
 
 }
@@ -700,7 +707,7 @@ void performComputerTurn()
 			endXIndex = -1;
 			endYIndex = -1;
 
-			//loop 50 times looping for a valid move
+			//loop 50 times checking for a valid move
 			for (int i = 0; i < 50; i++)
 			{
 				//set a random x and y index between 0 and 7
@@ -737,4 +744,12 @@ void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX];
 	chessBoard[startY][startX] = "";
+}
+
+//toggleMusic function
+//toggles music on or off
+void toggleMusic()
+{
+	//mciSendString("open \"*.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
+	//mciSendString("play mp3 repeat", NULL, 0, NULL);
 }
