@@ -82,96 +82,78 @@ int main()
 	std::string userInputEnd;   //user's input for the desired end location of the piece
 	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
 	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
+
+
+	int tempX;
+	int tempY;
+	int startX = -1;
+	int startY = -1;
+	int endX;
+	int endY;
+
 	while (1)
 	{
-		std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
-
-		//***NOTE*** 
-		//this is a demo and will need to be refined later on to make it more user friendly
-		//when testing the program, enter x,y coordinate. Do not enter the letter, instead enter it's number equivalent (ex. column A would be a y value of 1, B would be 2, H would be 8, etc.)
-		//example input (move second player's leftmost pawn up 2 spaces): 
-		// first line  - 1,7
-		// second line - 1,5
-		std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
-		int startX;
-		int startY;
-		int endX;
-		int endY;
-
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
-		ScreenToClient(GetConsoleWindow(),&cursorPos);
-		
-		bool mouseInput = true;
-		while (mouseInput)
+		ScreenToClient(GetConsoleWindow(), &cursorPos);
+		//if a spot on the chess board was clicked
+		if (isEvent(Events::Mouse_Right))
 		{
-			if (isEvent(Events::Mouse_Right))
+			//store the x and y coordinates of the position on the chess board that was clicked
+			tempX = (cursorPos.x - 26) / 48;
+			tempY = (cursorPos.y - 46) / 63;
+
+			//if chess board coordinates' start positions arent set AND the player clicked on a friendly piece
+			if (startX < 0 && startY < 0)
 			{
-				//std::cout << mouseX << std::endl;
-				//std::cout << mouseY << std::endl;
-				startX = (cursorPos.x -26)/48 ;
-				startY = (cursorPos.y -46)/63 ;
-				if ((startX >= 0 && startX < 8)&&(startY >= 0 && startY < 8))
+				if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == char(playerNumber))
 				{
-					mouseInput = false;
+					//set x and y coordinates for chess board start positions based on the cursor x and y positions
+					startX = tempX;
+					startY = tempY;
 				}
 			}
-			Sleep(100);
-		}
-		std::cout << startX << std::endl;
-		std::cout << startY << std::endl;
-
-		//std::cin >> userInputStart;
-		std::cout << "\n Enter the desired end position <x,y>: ";
-		mouseInput = true;
-		while (mouseInput)
-		{
-			if (isEvent(Events::Mouse_Right))
+			//else chess board coordinates' start positions are set
+			else
 			{
-				endX = (cursorPos.x - 26) / 48;
-				endY = (cursorPos.y - 46) / 63;
-				//std::cout << endX << std::endl;
-				//std::cout << endY << std::endl;
-				if ((endX >= 0 && endX < 8) && (endY >= 0 && endY < 8))
+				//set x and y coordinates for chess board end positions based on the cursor x and y positions
+				endX = tempX;
+				endY = tempY;
+
+				std::cout << "\n" << previousTurnAction << std::endl; //output a description of the previous turn's action
+
+				if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
 				{
-					mouseInput = false;
+					//update the previous turn's action
+					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+						" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+					//check if end location has an enemy piece
+					if (chessBoard[endY][endX] != "")
+						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
+					previousTurnAction += ".";
+
+					//set the new position for the piece and clear the old position
+					chessBoard[endY][endX] = chessBoard[startY][startX];
+					chessBoard[startY][startX] = "";
+
+					drawBoard(); //update board
+
+					//change which player's turn it is
+					if (playerNumber == 1)
+						playerNumber = 2;
+					else
+						playerNumber = 1;
+
+					//reset start x and y
+					startX = -1;
+					startY = -1;
 				}
-				std::cout << "this ran";
 			}
-			Sleep(100);
-		}
-		//std::cin >> userInputEnd;
 
-		//validate and move the piece to demo gameplay
-		//int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		//int startY = userInputStart[2] - '0' - 1;
-		//int endX = userInputEnd[0] - '0' - 1;
-		//int endY = userInputEnd[2] - '0' - 1;
-
-		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
-		{
-			//update the previous turn's action
-			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
-				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
-			//check if end location has an enemy piece
-			if (chessBoard[endY][endX] != "")
-				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
-			previousTurnAction += ".";
-
-			//set the new position for the piece and clear the old position
-			chessBoard[endY][endX] = chessBoard[startY][startX];
-			chessBoard[startY][startX] = "";
-		}
-
-		drawBoard(); //update board
-
-		//change which player's turn it is
-		if (playerNumber == 1)
-			playerNumber = 2;
-		else
-			playerNumber = 1;
+		Sleep(100);
 	}
 
+	std::cout << "\n\n";
 	system("pause");
 	return 0;
 }
