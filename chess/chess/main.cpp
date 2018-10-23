@@ -76,6 +76,11 @@ bool isInputPattern(const std::string& input);
 //check both user input is valid and ask user input another x,y
 void isInputValid(std::string &userInput, std::string msg);
 
+//isValidStartP1/P2 function prototype
+//check the start point for player one and two
+void isValidStartP1(std::string &userInput, std::string msg);
+void isValidStartP2(std::string &userInput, std::string msg);
+
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
@@ -107,6 +112,7 @@ int main()
 		// first line  - 1,7
 		// second line - 1,5
 
+		// validate the player start point
 		while (valid == false) {
 
 			// perpare messages for output
@@ -118,14 +124,22 @@ int main()
 
 			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
 
+			// call function to check start point for player one or two
+			if (playerNumber == 1) {
+				isValidStartP1(userInputStart, startMsg);
+			}
+			else {
+				isValidStartP2(userInputStart, startMsg);
+			}
+
 			std::cout << "\n Enter the desired end position <x,y>: ";
 			std::cin >> userInputEnd;
 
 			isInputValid(userInputEnd, endMsg);
 
-			// user input passed the pattern check, check for the movement
 			int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 			int startY = userInputStart[2] - '0' - 1;
+			// user input passed the pattern check, check for the movement
 			int endX = userInputEnd[0] - '0' - 1;
 			int endY = userInputEnd[2] - '0' - 1;
 
@@ -150,8 +164,8 @@ int main()
 		{
 			//update the previous turn's action
 
-			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) + 
-				                 " from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
+			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
+				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
 
 			//check if end location has an enemy piece
 			if (chessBoard[endY][endX] != "")
@@ -161,9 +175,8 @@ int main()
 			//set the new position for the piece and clear the old position
 			chessBoard[endY][endX] = chessBoard[startY][startX];
 			chessBoard[startY][startX] = "";
+
 		}
-
-
 
 		drawBoard(); //update board
 
@@ -710,7 +723,6 @@ bool isInputPattern(const std::string& input)
 //and ask for valid Input from user
 void isInputValid(std::string &userInput, std::string msg)
 {
-
 	while (isInputPattern(userInput) == false) {
 
 		std::cout << " Invalid Input \n";
@@ -720,5 +732,93 @@ void isInputValid(std::string &userInput, std::string msg)
 
 		std::cout << msg;
 		std::cin >> userInput;// ask user input the valid x,y
+	}
+}
+
+// check there is piece for player one to start
+void isValidStartP1(std::string &userInput, std::string msg)
+{
+	bool valid = false;
+		
+	while (valid == false) {
+		std::cout << " Invalid Start Piece \n";
+		std::cin.clear(); // reset cin for next input
+		// ignore the user input, passing in the maximize size a user could input to clear
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		std::cout << msg;
+		std::cin >> userInput;// ask user input the valid x,y
+
+		// check for start point
+		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+		int startY = userInput[2] - '0' - 1;
+
+		// the start piece is not empty
+		if (chessBoard[startY][startX] != "") {
+			// the start point is actually has player one's piece
+			if (chessBoard[startY][startX] == "R1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "N1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "B1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "Q1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "K1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "P1")
+				valid = true;
+			else 
+				valid = false;
+
+			valid = true;
+		}
+		else {
+			valid = false;
+		}
+	}
+}
+
+// check there is piece for player two to start
+void isValidStartP2(std::string &userInput, std::string msg)
+{
+	bool valid = false;
+
+	while (valid == false) {
+		std::cout << " Invalid Start Piece \n";
+		std::cin.clear(); // reset cin for next input
+		// ignore the user input, passing in the maximize size a user could input to clear
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		std::cout << msg;
+		std::cin >> userInput;// ask user input the valid x,y
+
+		// check for start point
+		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+		int startY = userInput[2] - '0' - 1;
+
+		// the start piece is not empty
+		if (chessBoard[startY][startX] != "") {
+			// the start point is actually has player two's piece
+			if (chessBoard[startY][startX] == "R2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "N2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "B2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "Q2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "K2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "P2")
+				valid = true;
+			else
+				valid = false;
+
+			valid = true;
+		}
+		else {
+			valid = false;
+		}
 	}
 }
