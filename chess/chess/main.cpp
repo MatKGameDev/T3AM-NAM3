@@ -770,8 +770,6 @@ void isValidStartP1(std::string &userInput, std::string msg)
 				valid = true;
 			else 
 				valid = false;
-
-			valid = true;
 		}
 		else {
 			valid = false;
@@ -814,8 +812,6 @@ void isValidStartP2(std::string &userInput, std::string msg)
 				valid = true;
 			else
 				valid = false;
-
-			valid = true;
 		}
 		else {
 			valid = false;
