@@ -125,7 +125,9 @@ int main()
 			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
 
 			// call function to check start point for player one or two
+
 			if (playerNumber == 1) {
+
 				isValidStartP1(userInputStart, startMsg);
 			}
 			else {
@@ -185,6 +187,7 @@ int main()
 			playerNumber = 2;
 		else
 			playerNumber = 1;
+		
 	}
 
 	system("pause");
@@ -255,7 +258,7 @@ void drawBoard()
 	//leave 1 block space in every direction around the pieces
 	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
 
-	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
+	std::cout << "\n" << "      A1    B2    C3    D4    E5    F6    G7    H8\n";
 	for (int i = 0; i < 33; i++)
 	{
 		if (i % 4 == 0)
@@ -741,13 +744,6 @@ void isValidStartP1(std::string &userInput, std::string msg)
 	bool valid = false;
 		
 	while (valid == false) {
-		std::cout << " Invalid Start Piece \n";
-		std::cin.clear(); // reset cin for next input
-		// ignore the user input, passing in the maximize size a user could input to clear
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		std::cout << msg;
-		std::cin >> userInput;// ask user input the valid x,y
 
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
@@ -774,6 +770,18 @@ void isValidStartP1(std::string &userInput, std::string msg)
 		else {
 			valid = false;
 		}
+
+		if (valid == false) {
+
+			std::cout << " Invalid Start Piece \n";
+			std::cin.clear(); // reset cin for next input
+			// ignore the user input, passing in the maximize size a user could input to clear
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			std::cout << msg;
+			std::cin >> userInput;// ask user input the valid x,y
+		}
+	
 	}
 }
 
@@ -783,13 +791,6 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	bool valid = false;
 
 	while (valid == false) {
-		std::cout << " Invalid Start Piece \n";
-		std::cin.clear(); // reset cin for next input
-		// ignore the user input, passing in the maximize size a user could input to clear
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		std::cout << msg;
-		std::cin >> userInput;// ask user input the valid x,y
 
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
@@ -815,6 +816,17 @@ void isValidStartP2(std::string &userInput, std::string msg)
 		}
 		else {
 			valid = false;
+		}
+
+		if (valid == false) {
+
+			std::cout << " Invalid Start Piece \n";
+			std::cin.clear(); // reset cin for next input
+			// ignore the user input, passing in the maximize size a user could input to clear
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			std::cout << msg;
+			std::cin >> userInput;// ask user input the valid x,y
 		}
 	}
 }
