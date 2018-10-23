@@ -18,7 +18,6 @@
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Play vs AI option
 *  Allow the user to perform moves with mouse
 *  Time limit for turns
 *  Sound FX/Music
@@ -64,13 +63,17 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 //returns true or false depending on if the parameter is a valid event or not
 bool isEvent(unsigned char event);
 
-//playerVsPlayer function prototype
-//allows two players to play chess against each other
-void playerVsPlayer();
+//playGame function prototype
+//allows two players to play chess against each other, or a player can choose to play against a computer
+void playGame(bool isVersusComputer = false);
 
-//playerVsComputer function prototype
-//allows a player to play chess against a computer
-void playerVsComputer();
+//performComputerTurn function prototype
+//determines logic for a computer player's turn
+void performComputerTurn();
+
+//movePiece function prototype
+//moves a piece from the start location to the end location
+void movePiece(int startX, int startY, int destinationX, int destinationY);
 
 int main()
 {
@@ -620,16 +623,118 @@ bool isEvent(unsigned char event)
 	return GetAsyncKeyState(event);
 }
 
-//playerVsPlayer function
-//lets two players compete against eachother in a game
-void playerVsPlayer()
+//playGame function
+//performs all actions that allow a user to play against another player, or against a computer player
+void playGame(bool isVersusComputer = false)
 {
 
 }
 
-//playerVsComputer function
-//lets a player compete against a computer in a game
-void playerVsComputer()
+//performComputerTurn function
+//determines an action for the computer to perform on its turn
+void performComputerTurn()
 {
+	bool validMoveSelected = false; //loop condition for the entire computer's turn
+	bool validPieceSelected;        //loop condition for selecting a starting position for a piece
 
+	int startXIndex;   //starting x value for the piece to be moved
+	int startYIndex;   //starting y value for the piece to be moved
+	int tempEndXIndex; //stores a temporary ending x value before checking if the move is valid
+	int tempEndYIndex; //stores a temporary ending y value before checking if the move is valid
+	int endXIndex;	   //ending x value for the piece to move to
+	int endYIndex;	   //ending y value for the piece to move to
+
+	//loop until there is a valid move generated
+	while (!validMoveSelected)
+	{
+		validPieceSelected = false;
+		//loop until a valid piece is selected
+		while (!validPieceSelected)
+		{
+			//get random start x index between 0 and 7
+			startXIndex = rand() % 8;
+			//get random start y index between 0 and 7
+			startYIndex = rand() % 8;
+
+			//check if the piece belongs to the computer player
+			if (chessBoard[startYIndex][startXIndex] != "" && chessBoard[startYIndex][startXIndex][1] == '2')
+				validPieceSelected = true;
+		}
+
+		//if a pawn was selected
+		if (chessBoard[startYIndex][startXIndex][0] == 'P')
+		{
+			//check if it can attack up and to the left
+			if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1))
+			{
+				movePiece(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1);
+				validMoveSelected = true;
+			}
+			//check if it can attack up and to the right
+			else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1))
+			{
+				movePiece(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1);
+				validMoveSelected = true;
+			}
+			//can't attack, find a spot to move it
+			else
+			{
+				//try to move it 2 spaces up
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 2))
+				{
+					movePiece(startXIndex, startYIndex, startXIndex, startYIndex + 2);
+					validMoveSelected = true;
+				}
+				//try to move it 1 space up
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 1))
+				{
+					movePiece(startXIndex, startYIndex, startXIndex, startYIndex + 1);
+					validMoveSelected = true;
+				}
+			}
+		}
+		//piece is not a pawn, try to move it randomly, prioritizing attacking
+		else
+		{
+			//set the indexes to -1 temporarily so we can check if they were set later
+			endXIndex = -1;
+			endYIndex = -1;
+
+			//loop 50 times looping for a valid move
+			for (int i = 0; i < 50; i++)
+			{
+				//set a random x and y index between 0 and 7
+				tempEndXIndex = rand() % 8;
+				tempEndYIndex = rand() % 8;
+
+				//if the randomly selected destination is a valid move
+				if (isValidPieceMovement(startXIndex, startYIndex, tempEndXIndex, tempEndYIndex))
+				{
+					//set the end indexes
+					endXIndex = tempEndXIndex;
+					endYIndex = tempEndYIndex;
+
+					//if the move is also attacking another piece
+					if (chessBoard[endYIndex][endXIndex] != "")
+						break; //do not look for any more destination possibilities, we want to prioritize attacking
+				}
+			}
+		}
+
+		//if there was a valid move selected
+		if (endXIndex > 0 && endYIndex > 0)
+		{
+			//perform the move
+			movePiece(startXIndex, startYIndex, endXIndex, endYIndex);
+			validMoveSelected = true; //do not loop anymore
+		}
+	}
+}
+
+//movePiece function
+//moves a piece from the start to the end location and clears the old start location
+void movePiece(int startX, int startY, int destinationX, int destinationY)
+{
+	chessBoard[destinationY][destinationX] = chessBoard[startY][startX];
+	chessBoard[startY][startX] = "";
 }
