@@ -12,14 +12,12 @@
 /*
 * TODO (Incomplete list)
 * Basic TODOs:
-*  Validate player's entry for start and end coordinates
+*  Add right click to move in the how-to
 *  Main menu screen
-*  Properly structured 2 player gameplay
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Allow the user to perform moves with mouse
 *  Time limit for turns
 *  Sound FX/Music
 */
@@ -828,16 +826,12 @@ void playGame(bool isVersusComputer)
 			tempX = (cursorPos.x - 26) / 48; //26 is the pixels between the left side of console window and the left side of the board. 48 is the width of each square
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
-			//if chess board coordinates' start positions arent set
-			if (startX < 0 && startY < 0)
+			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
+			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
-				//if the player clicked on a friendly piece (convert player number to char to compare)
-				if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
-				{
-					//set x and y coordinates for chess board start positions based on the cursor x and y positions
-					startX = tempX;
-					startY = tempY;
-				}
+				//set x and y coordinates for chess board start positions based on the cursor x and y positions
+				startX = tempX;
+				startY = tempY;
 			}
 			//else chess board coordinates' start positions are set
 			else
@@ -870,6 +864,20 @@ void playGame(bool isVersusComputer)
 
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+
+
+					//Sleep(1000);
+					//performComputerTurn();
+					//drawBoard(); //update board
+
+					////change which player's turn it is
+					//if (playerNumber == 1)
+					//	playerNumber = 2;
+					//else
+					//	playerNumber = 1;
+
+
 
 					//reset start x and y
 					startX = -1;
@@ -913,34 +921,38 @@ void performComputerTurn()
 				validPieceSelected = true;
 		}
 
+		//set the indexes to -1 temporarily so we can check if they were set later
+		endXIndex = -1;
+		endYIndex = -1;
+
 		//if a pawn was selected
 		if (chessBoard[startYIndex][startXIndex][0] == 'P')
 		{
 			//check if it can attack up and to the left
-			if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1))
+			if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
 			{
-				movePiece(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1);
+				movePiece(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1);
 				validMoveSelected = true;
 			}
 			//check if it can attack up and to the right
-			else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1))
+			else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
 			{
-				movePiece(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1);
+				movePiece(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1);
 				validMoveSelected = true;
 			}
 			//can't attack, find a spot to move it
 			else
 			{
 				//try to move it 2 spaces up
-				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 2))
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
 				{
-					movePiece(startXIndex, startYIndex, startXIndex, startYIndex + 2);
+					movePiece(startXIndex, startYIndex, startXIndex, startYIndex - 2);
 					validMoveSelected = true;
 				}
 				//try to move it 1 space up
-				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 1))
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
 				{
-					movePiece(startXIndex, startYIndex, startXIndex, startYIndex + 1);
+					movePiece(startXIndex, startYIndex, startXIndex, startYIndex - 1);
 					validMoveSelected = true;
 				}
 			}
@@ -948,10 +960,6 @@ void performComputerTurn()
 		//piece is not a pawn, try to move it randomly, prioritizing attacking
 		else
 		{
-			//set the indexes to -1 temporarily so we can check if they were set later
-			endXIndex = -1;
-			endYIndex = -1;
-
 			//loop 80 times checking for a valid move
 			for (int i = 0; i < 80; i++)
 			{
