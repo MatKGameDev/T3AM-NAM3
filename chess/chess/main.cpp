@@ -657,6 +657,13 @@ bool isInputPattern(const std::string& input)
 	return std::regex_match(input, pattern);
 }
 
+//isEvent function
+//checks if a valid key was pressed
+bool isEvent(unsigned char event)
+{
+	return GetAsyncKeyState(event);
+}
+
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
