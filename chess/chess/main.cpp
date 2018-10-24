@@ -826,16 +826,12 @@ void playGame(bool isVersusComputer)
 			tempX = (cursorPos.x - 26) / 48; //26 is the pixels between the left side of console window and the left side of the board. 48 is the width of each square
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
-			//if chess board coordinates' start positions arent set
-			if (startX < 0 && startY < 0)
+			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
+			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
-				//if the player clicked on a friendly piece (convert player number to char to compare)
-				if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
-				{
-					//set x and y coordinates for chess board start positions based on the cursor x and y positions
-					startX = tempX;
-					startY = tempY;
-				}
+				//set x and y coordinates for chess board start positions based on the cursor x and y positions
+				startX = tempX;
+				startY = tempY;
 			}
 			//else chess board coordinates' start positions are set
 			else
