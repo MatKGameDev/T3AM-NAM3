@@ -89,7 +89,7 @@ void playGame(bool isVersusComputer = false);
 
 //performComputerTurn function prototype
 //determines logic for a computer player's turn
-void performComputerTurn();
+void performComputerTurn(std::string &previousTurnAction);
 
 //movePiece function prototype
 //moves a piece from the start location to the end location
@@ -104,7 +104,7 @@ int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
-	playGame();
+	playGame(true);
 
 	std::cout << "\n\n";
 	system("pause");
@@ -845,7 +845,8 @@ void playGame(bool isVersusComputer)
 				{
 					//update the previous turn's action
 					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
-						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
+						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
 					//check if end location has an enemy piece
 					if (chessBoard[endY][endX] != "")
 						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
@@ -856,28 +857,28 @@ void playGame(bool isVersusComputer)
 
 					drawBoard(); //update board
 
-					//change which player's turn it is
-					if (playerNumber == 1)
-						playerNumber = 2;
-					else
-						playerNumber = 1;
-
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
 
+					//if the player is against the computer
+					if (isVersusComputer)
+					{
+						std::cout << " Computer player's turn.";
+						Sleep(1500);
+						performComputerTurn(previousTurnAction);
+						drawBoard(); //update board
+						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+						std::cout << " Your turn."; //tell the user it's their turn
+					}
+					else //player vs player
+					{
+						//change which player's turn it is
+						if (playerNumber == 1)
+							playerNumber = 2;
+						else
+							playerNumber = 1;
 
-
-					//Sleep(1000);
-					//performComputerTurn();
-					//drawBoard(); //update board
-
-					////change which player's turn it is
-					//if (playerNumber == 1)
-					//	playerNumber = 2;
-					//else
-					//	playerNumber = 1;
-
-
+						std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+					}
 
 					//reset start x and y
 					startX = -1;
@@ -892,7 +893,7 @@ void playGame(bool isVersusComputer)
 
 //performComputerTurn function
 //determines an action for the computer to perform on its turn
-void performComputerTurn()
+void performComputerTurn(std::string &previousTurnAction)
 {
 	bool validMoveSelected = false; //loop condition for the entire computer's turn
 	bool validPieceSelected;        //loop condition for selecting a starting position for a piece
@@ -931,13 +932,15 @@ void performComputerTurn()
 			//check if it can attack up and to the left
 			if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
 			{
-				movePiece(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1);
+				endXIndex = startXIndex - 1;
+				endYIndex = startYIndex - 1;
 				validMoveSelected = true;
 			}
 			//check if it can attack up and to the right
 			else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
 			{
-				movePiece(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1);
+				endXIndex = startXIndex + 1;
+				endYIndex = startYIndex - 1;
 				validMoveSelected = true;
 			}
 			//can't attack, find a spot to move it
@@ -946,13 +949,15 @@ void performComputerTurn()
 				//try to move it 2 spaces up
 				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
 				{
-					movePiece(startXIndex, startYIndex, startXIndex, startYIndex - 2);
+					endXIndex = startXIndex;
+					endYIndex = startYIndex - 2;
 					validMoveSelected = true;
 				}
 				//try to move it 1 space up
 				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
 				{
-					movePiece(startXIndex, startYIndex, startXIndex, startYIndex - 1);
+					endXIndex = startXIndex;
+					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
 				}
 			}
@@ -984,11 +989,22 @@ void performComputerTurn()
 		//if there was a valid move selected
 		if (endXIndex > -1 && endYIndex > -1)
 		{
-			//perform the move
-			movePiece(startXIndex, startYIndex, endXIndex, endYIndex);
 			validMoveSelected = true; //do not loop anymore
 		}
 	}
+
+	//update the previous turn's action
+	previousTurnAction = " Computer player moved " + getPieceName(chessBoard[startYIndex][startXIndex][0]) +
+		" from " + convertNumberToLetterCoordinate(startXIndex + 1) + std::to_string(startYIndex + 1) + " to " +
+		convertNumberToLetterCoordinate(endXIndex + 1) + std::to_string(endYIndex + 1);
+	//check if end location has an enemy piece
+	if (chessBoard[endYIndex][endXIndex] != "")
+		previousTurnAction += "\n And took your " + getPieceName(chessBoard[endYIndex][endXIndex][0]);
+	previousTurnAction += ".";
+
+	//perform the move
+	movePiece(startXIndex, startYIndex, endXIndex, endYIndex);
+
 }
 
 //movePiece function
