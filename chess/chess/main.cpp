@@ -28,6 +28,10 @@
 #include <string>
 #include <Windows.h>
 #include "Events.h"
+#include <regex>
+
+// conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
+#undef max
 
 std::string chessBoard[8][8]; //a 2d array to represent the chess board, standard size is 8x8
 
@@ -67,6 +71,19 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 //isEvent function prototype
 //returns true or false depending on if the parameter is a valid event or not
 bool isEvent(unsigned char event);
+
+//isInputPattern function prototype
+//check user input correct format 1-8,1-8
+bool isInputPattern(const std::string& input);
+
+//isInputValid function prototype
+//check both user input is valid and ask user input another x,y
+void isInputValid(std::string &userInput, std::string msg);
+
+//isValidStartP1/P2 function prototype
+//check the start point for player one and two
+void isValidStartP1(std::string &userInput, std::string msg);
+void isValidStartP2(std::string &userInput, std::string msg);
 
 //playGame function prototype
 //allows two players to play chess against each other, or a player can choose to play against a computer
@@ -169,7 +186,7 @@ void drawBoard()
 		}
 		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
 		{
-			std::cout<< "   *     *     *     *     *     *     *     *     *\n";
+			std::cout << "   *     *     *     *     *     *     *     *     *\n";
 		}
 		if (i % 4 == 2)//print out the pieces 
 		{
@@ -641,6 +658,127 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	return returnValue;
 }
 
+//isInputPattern function use regular expression to 
+//determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
+bool isInputPattern(const std::string& input)
+{
+	// define a regular expression
+	const std::regex pattern
+	("\\b[1-8],[1-8]\\b");
+
+	// try to match the string with the regular expression
+	return std::regex_match(input, pattern);
+}
+
+//isInputValid function run while loop to clear user input 
+//and ask for valid Input from user
+void isInputValid(std::string &userInput, std::string msg)
+{
+	while (isInputPattern(userInput) == false) {
+
+		std::cout << " Invalid Input \n";
+		std::cin.clear(); // reset cin for next input
+						  // ignore the user input, passing in the maximize size a user could input to clear
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		std::cout << msg;
+		std::cin >> userInput;// ask user input the valid x,y
+	}
+}
+
+// check there is piece for player one to start
+void isValidStartP1(std::string &userInput, std::string msg)
+{
+	bool valid = false;
+
+	while (valid == false) {
+
+		// check for start point
+		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+		int startY = userInput[2] - '0' - 1;
+
+		// the start piece is not empty
+		if (chessBoard[startY][startX] != "") {
+			// the start point is actually has player one's piece
+			if (chessBoard[startY][startX] == "R1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "N1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "B1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "Q1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "K1")
+				valid = true;
+			else if (chessBoard[startY][startX] == "P1")
+				valid = true;
+			else
+				valid = false;
+		}
+		else {
+			valid = false;
+		}
+
+		if (valid == false) {
+
+			std::cout << " Invalid Start Piece \n";
+			std::cin.clear(); // reset cin for next input
+							  // ignore the user input, passing in the maximize size a user could input to clear
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			std::cout << msg;
+			std::cin >> userInput;// ask user input the valid x,y
+		}
+
+	}
+}
+
+// check there is piece for player two to start
+void isValidStartP2(std::string &userInput, std::string msg)
+{
+	bool valid = false;
+
+	while (valid == false) {
+
+		// check for start point
+		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
+		int startY = userInput[2] - '0' - 1;
+
+		// the start piece is not empty
+		if (chessBoard[startY][startX] != "") {
+			// the start point is actually has player two's piece
+			if (chessBoard[startY][startX] == "R2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "N2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "B2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "Q2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "K2")
+				valid = true;
+			else if (chessBoard[startY][startX] == "P2")
+				valid = true;
+			else
+				valid = false;
+		}
+		else {
+			valid = false;
+		}
+
+		if (valid == false) {
+
+			std::cout << " Invalid Start Piece \n";
+			std::cin.clear(); // reset cin for next input
+							  // ignore the user input, passing in the maximize size a user could input to clear
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			std::cout << msg;
+			std::cin >> userInput;// ask user input the valid x,y
+		}
+	}
+}
+
 //isEvent function
 //checks if a valid key was pressed
 bool isEvent(unsigned char event)
@@ -658,8 +796,6 @@ void playGame(bool isVersusComputer)
 
 	initializeBoard(); //reset the chess board
 	drawBoard();       //display the chess board to the user
-
-					   // test piece validation and moving them around the board
 
 	std::string userInputStart; //user's input for the start location of the piece
 	std::string userInputEnd;   //user's input for the desired end location of the piece
