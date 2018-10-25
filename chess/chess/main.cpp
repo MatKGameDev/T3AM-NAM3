@@ -278,13 +278,9 @@ void drawBoard(bool *validMove)
 				if (arr[((i / 4) * 8) + n])
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
-					std::cout << "     ";
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 				}
-				else
-				{
-					std::cout << "     ";
-				}
+				std::cout << "     ";
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 				std::cout << "*";
 			}
 			std::cout << std::endl;
