@@ -40,7 +40,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard();
+void drawBoard(bool* validMove = { false });
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -104,23 +104,25 @@ void highlightValidMoves(bool *validSquares, int startX, int startY);
 //music taken from royalty free website: www.purple-planet.com/gentle
 void toggleMusic();
 
+bool arr[64] = { 0 };
+
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	initializeBoard();
 
-	bool arr[64] = { 0 };
+	
+	playGame(true);
+	//highlightValidMoves(arr, 3, 1);
 
-	highlightValidMoves(arr, 3, 1);
-
-	for (int i = 0; i < 8; i++)
+	/*for (int i = 0; i < 8; i++)
 	{
 		std::cout << "\n";
 		for (int j = 0; j < 8; j++)
 		{ 
 			std::cout << arr[i * 8 + j];
 		}
-	}
+	}*/
 
 	std::cout << "\n\n";
 	system("pause");
@@ -182,7 +184,7 @@ void initializeBoard()
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard()
+void drawBoard(bool *validMove)
 {
 	system("cls"); //clear the screen
 
@@ -200,15 +202,36 @@ void drawBoard()
 		}
 		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
 		{
-			std::cout << "   *     *     *     *     *     *     *     *     *\n";
+			std::cout << "   *";
+				//<<"     *     *     *     *     *     *     *     *\n";
+			for (int n = 0;n < 8;n++)
+			{
+				if (arr[((i / 4) * 8) + n])
+				{
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					std::cout << "     ";
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+				}
+				else
+				{
+					std::cout << "     ";
+				}
+				std::cout << "*";
+			}
+			std::cout << std::endl;
 		}
 		if (i % 4 == 2)//print out the pieces 
 		{
-			std::cout << " "<< i / 4 + 1 << " *  ";//print the row identifier
+			std::cout << " "<< i / 4 + 1 << " *";//print the row identifier
 			for (int n = 0; n < 15; n++)//print out the row of pieces
 			{
 				if (n % 2 == 0)//if a piece belongs here
 				{
+					if (arr[((i / 4) * 8) + n / 2])
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
 					if (chessBoard[i / 4][n / 2] != "")//validation to make sure the piece exists
 					{
 						//check if piece belongs to player 1
@@ -221,20 +244,40 @@ void drawBoard()
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
+						if (arr[((i / 4) * 8) + n/2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
 						std::cout << chessBoard[i / 4][n / 2][0];//print out the piece type
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);//reset the colour of the text
 					}
+					
 					else//if empty
 					{
+						if (arr[((i / 4) * 8) + n / 2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
 						std::cout << chessBoard[i / 4][n / 2][0];//print out a space
 					}
 				}
 				else
 				{
-					std::cout << "  *  ";//print a piece of the vertical border
+					std::cout << "  ";//print a piece of the vertical border
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
+				}
+				if (n == 14)
+				{
+					if (arr[((i / 4) * 8) + n / 2])
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
 				}
 			}
-			std::cout<< "  *\n";//the end of the row
+			std::cout << std::endl;//the end of the row
 		}
 	}
 }
@@ -1025,9 +1068,9 @@ void highlightValidMoves(bool *validSquares, int startX, int startY)
 		{
 			//check if the spot is a valid position for the piece to move
 			if (isValidPieceMovement(startX, startY, j, i))
-				validSquares[i * 8 + j] = true; //set the square to be a valid movement 
+				arr[i * 8 + j] = true; //set the square to be a valid movement 
 			else //spot is not a valid position
-				validSquares[i * 8 + j] = false;
+				arr[i * 8 + j] = false;
 		}
 	}
 }
