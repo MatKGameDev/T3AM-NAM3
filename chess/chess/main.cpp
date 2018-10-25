@@ -119,8 +119,6 @@ int main()
 
 	showMainMenu(); //open the main menu
 
-	std::cout << "\n\n";
-	system("pause");
 	return 0;
 }
 
@@ -283,8 +281,13 @@ void howTo()
 	{
 		system("cls"); //clear screen every time it loops
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
-		std::cout << "1. Terminology\n2. Pawns\n3. Rooks\n4. Knights\n5. Bishops\n6. Queen\n7. King\n8. General rules\n9. Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+		HWND console = GetConsoleWindow();
+		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
+
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		std::cout << "\n\nEnter your selection: ";
 		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
@@ -378,7 +381,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break; //break the loop if the user enters 11
+			showMainMenu();
 		}
 		else
 		{
@@ -830,7 +833,11 @@ void playGame(bool isVersusComputer)
 	int endY;
 
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-	std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+	if (isVersusComputer)
+		std::cout << " Your turn.";
+	else
+		std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
 
 	while (1)
 	{
@@ -859,6 +866,15 @@ void playGame(bool isVersusComputer)
 
 				drawBoard();
 				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+   			    //if the player is against the computer
+				if (isVersusComputer)
+				{
+					std::cout << " Your turn.";
+				}
+				else //player vs player
+				{
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+				}
 			}
 			//if chess board coordinates' start positions are set
 			else if (startX >= 0 && startY >= 0)
@@ -871,9 +887,15 @@ void playGame(bool isVersusComputer)
 				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
 					//update the previous turn's action
-					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+					if (isVersusComputer)
+						previousTurnAction = " You";
+					else
+						previousTurnAction = " Player " + std::to_string(playerNumber);
+
+					previousTurnAction += " moved " + getPieceName(chessBoard[startY][startX][0]) +
 						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
 						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+
 					//check if end location has an enemy piece
 					if (chessBoard[endY][endX] != "")
 						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
@@ -924,7 +946,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 15;
+	const int MAXIMUM_CHECKS = 20;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
@@ -1135,7 +1157,7 @@ void showMainMenu()
 	std::cout.width(94);
 	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
 	std::cout.width(94);
-	std::cout << " || [3] Player vs Computer || \n\n" << std::endl;
+	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
 	std::cout.width(90);
 	std::cout << "|| [4] Quit || \n\n\n\n\n" << std::endl;
 
