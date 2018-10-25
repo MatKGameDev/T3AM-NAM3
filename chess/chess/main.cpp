@@ -95,6 +95,10 @@ void performComputerTurn(std::string &previousTurnAction);
 //moves a piece from the start location to the end location
 void movePiece(int startX, int startY, int destinationX, int destinationY);
 
+//highlightValidMoves function prototype
+//used for highlighting any squares that the player can move their piece, returns an array that corresponds with valid potential moves for the piece
+void highlightValidMoves(bool *validSquares, int startX, int startY);
+
 //toggleMusic function prototype
 //toggles music on or off
 //music taken from royalty free website: www.purple-planet.com/gentle
@@ -103,8 +107,20 @@ void toggleMusic();
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+	initializeBoard();
 
-	playGame(true);
+	bool arr[64] = { 0 };
+
+	highlightValidMoves(arr, 3, 1);
+
+	for (int i = 0; i < 8; i++)
+	{
+		std::cout << "\n";
+		for (int j = 0; j < 8; j++)
+		{ 
+			std::cout << arr[i * 8 + j];
+		}
+	}
 
 	std::cout << "\n\n";
 	system("pause");
@@ -672,8 +688,8 @@ bool isInputPattern(const std::string& input)
 //and ask for valid Input from user
 void isInputValid(std::string &userInput, std::string msg)
 {
-	while (isInputPattern(userInput) == false) {
-
+	while (isInputPattern(userInput) == false) 
+	{
 		std::cout << " Invalid Input \n";
 		std::cin.clear(); // reset cin for next input
 						  // ignore the user input, passing in the maximize size a user could input to clear
@@ -689,36 +705,20 @@ void isValidStartP1(std::string &userInput, std::string msg)
 {
 	bool valid = false;
 
-	while (valid == false) {
-
+	while (valid == false) 
+	{
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 		int startY = userInput[2] - '0' - 1;
 
 		// the start piece is not empty
-		if (chessBoard[startY][startX] != "") {
-			// the start point is actually has player one's piece
-			if (chessBoard[startY][startX] == "R1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "N1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "B1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "Q1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "K1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "P1")
-				valid = true;
-			else
-				valid = false;
-		}
-		else {
+		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '1') 
 			valid = false;
-		}
+		else 
+			valid = false;
 
-		if (valid == false) {
-
+		if (valid == false) 
+		{
 			std::cout << " Invalid Start Piece \n";
 			std::cin.clear(); // reset cin for next input
 							  // ignore the user input, passing in the maximize size a user could input to clear
@@ -727,7 +727,6 @@ void isValidStartP1(std::string &userInput, std::string msg)
 			std::cout << msg;
 			std::cin >> userInput;// ask user input the valid x,y
 		}
-
 	}
 }
 
@@ -736,36 +735,20 @@ void isValidStartP2(std::string &userInput, std::string msg)
 {
 	bool valid = false;
 
-	while (valid == false) {
-
+	while (valid == false) 
+	{
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 		int startY = userInput[2] - '0' - 1;
 
 		// the start piece is not empty
-		if (chessBoard[startY][startX] != "") {
-			// the start point is actually has player two's piece
-			if (chessBoard[startY][startX] == "R2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "N2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "B2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "Q2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "K2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "P2")
-				valid = true;
-			else
-				valid = false;
-		}
-		else {
+		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '2')
 			valid = false;
-		}
+		else
+			valid = false;
 
-		if (valid == false) {
-
+		if (valid == false) 
+		{
 			std::cout << " Invalid Start Piece \n";
 			std::cin.clear(); // reset cin for next input
 							  // ignore the user input, passing in the maximize size a user could input to clear
@@ -798,7 +781,9 @@ void playGame(bool isVersusComputer)
 	std::string userInputStart; //user's input for the start location of the piece
 	std::string userInputEnd;   //user's input for the desired end location of the piece
 	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
+	bool validPieces[64];       //an array where each true value determines a spot that a selected piece can be moved
 	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
+
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -832,6 +817,11 @@ void playGame(bool isVersusComputer)
 				//set x and y coordinates for chess board start positions based on the cursor x and y positions
 				startX = tempX;
 				startY = tempY;
+
+				//update the board to show the valid movement options for the selected piece
+				highlightValidMoves(validPieces, startX, startY);
+
+				drawBoard();
 			}
 			//else chess board coordinates' start positions are set
 			else
@@ -864,7 +854,7 @@ void playGame(bool isVersusComputer)
 					{
 						std::cout << " Computer player's turn.";
 						Sleep(1500);
-						performComputerTurn(previousTurnAction);
+						performComputerTurn(previousTurnAction); //determine the computer player's action
 						drawBoard(); //update board
 						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 						std::cout << " Your turn."; //tell the user it's their turn
@@ -886,7 +876,7 @@ void playGame(bool isVersusComputer)
 				}
 			}
 
-			Sleep(100);
+			Sleep(100); //pause for 100ms (run at 10fps)
 		}
 	}
 }
@@ -895,8 +885,10 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	bool validMoveSelected = false; //loop condition for the entire computer's turn
-	bool validPieceSelected;        //loop condition for selecting a starting position for a piece
+	const int MAXIMUM_CHECKS = 7;
+
+	bool validMoveSelected;  //loop condition for the entire computer's turn
+	bool validPieceSelected; //loop condition for selecting a starting position for a piece
 
 	int startXIndex;   //starting x value for the piece to be moved
 	int startYIndex;   //starting y value for the piece to be moved
@@ -905,91 +897,98 @@ void performComputerTurn(std::string &previousTurnAction)
 	int endXIndex;	   //ending x value for the piece to move to
 	int endYIndex;	   //ending y value for the piece to move to
 
-	//loop until there is a valid move generated
-	while (!validMoveSelected)
+	for (int i = 0; i < MAXIMUM_CHECKS; i++)
 	{
-		validPieceSelected = false;
-		//loop until a valid piece is selected
-		while (!validPieceSelected)
+		validMoveSelected = false;
+		//loop until there is a valid move generated
+		while (!validMoveSelected)
 		{
-			//get random start x index between 0 and 7
-			startXIndex = rand() % 8;
-			//get random start y index between 0 and 7
-			startYIndex = rand() % 8;
-
-			//check if the piece belongs to the computer player
-			if (chessBoard[startYIndex][startXIndex] != "" && chessBoard[startYIndex][startXIndex][1] == '2')
-				validPieceSelected = true;
-		}
-
-		//set the indexes to -1 temporarily so we can check if they were set later
-		endXIndex = -1;
-		endYIndex = -1;
-
-		//if a pawn was selected
-		if (chessBoard[startYIndex][startXIndex][0] == 'P')
-		{
-			//check if it can attack up and to the left
-			if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
+			validPieceSelected = false;
+			//loop until a valid piece is selected
+			while (!validPieceSelected)
 			{
-				endXIndex = startXIndex - 1;
-				endYIndex = startYIndex - 1;
-				validMoveSelected = true;
+				//get random start x index between 0 and 7
+				startXIndex = rand() % 8;
+				//get random start y index between 0 and 7
+				startYIndex = rand() % 8;
+
+				//check if the piece belongs to the computer player
+				if (chessBoard[startYIndex][startXIndex] != "" && chessBoard[startYIndex][startXIndex][1] == '2')
+					validPieceSelected = true;
 			}
-			//check if it can attack up and to the right
-			else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
+
+			//set the indexes to -1 temporarily so we can check if they were set later
+			endXIndex = -1;
+			endYIndex = -1;
+
+			//if a pawn was selected
+			if (chessBoard[startYIndex][startXIndex][0] == 'P')
 			{
-				endXIndex = startXIndex + 1;
-				endYIndex = startYIndex - 1;
-				validMoveSelected = true;
-			}
-			//can't attack, find a spot to move it
-			else
-			{
-				//try to move it 2 spaces up
-				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
+				//check if it can attack up and to the left
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
 				{
-					endXIndex = startXIndex;
-					endYIndex = startYIndex - 2;
-					validMoveSelected = true;
-				}
-				//try to move it 1 space up
-				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
-				{
-					endXIndex = startXIndex;
+					endXIndex = startXIndex - 1;
 					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
 				}
-			}
-		}
-		//piece is not a pawn, try to move it randomly, prioritizing attacking
-		else
-		{
-			//loop 80 times checking for a valid move
-			for (int i = 0; i < 80; i++)
-			{
-				//set a random x and y index between 0 and 7
-				tempEndXIndex = rand() % 8;
-				tempEndYIndex = rand() % 8;
-
-				//if the randomly selected destination is a valid move
-				if (isValidPieceMovement(startXIndex, startYIndex, tempEndXIndex, tempEndYIndex))
+				//check if it can attack up and to the right
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
 				{
-					//set the end indexes
-					endXIndex = tempEndXIndex;
-					endYIndex = tempEndYIndex;
-
-					//if the move is also attacking another piece
-					if (chessBoard[endYIndex][endXIndex] != "")
-						break; //do not look for any more destination possibilities, we want to prioritize attacking
+					endXIndex = startXIndex + 1;
+					endYIndex = startYIndex - 1;
+					validMoveSelected = true;
+				}
+				//can't attack, find a spot to move it
+				else
+				{
+					//try to move it 2 spaces up
+					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
+					{
+						endXIndex = startXIndex;
+						endYIndex = startYIndex - 2;
+						validMoveSelected = true;
+					}
+					//try to move it 1 space up
+					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
+					{
+						endXIndex = startXIndex;
+						endYIndex = startYIndex - 1;
+						validMoveSelected = true;
+					}
 				}
 			}
-		}
+			//piece is not a pawn, try to move it randomly, prioritizing attacking
+			else
+			{
+				//loop 80 times checking for a valid move
+				for (int j = 0; j < 80; j++)
+				{
+					//set a random x and y index between 0 and 7
+					tempEndXIndex = rand() % 8;
+					tempEndYIndex = rand() % 8;
 
-		//if there was a valid move selected
-		if (endXIndex > -1 && endYIndex > -1)
-		{
-			validMoveSelected = true; //do not loop anymore
+					//if the randomly selected destination is a valid move
+					if (isValidPieceMovement(startXIndex, startYIndex, tempEndXIndex, tempEndYIndex))
+					{
+						//set the end indexes
+						endXIndex = tempEndXIndex;
+						endYIndex = tempEndYIndex;
+
+						//if the move is also attacking another piece
+						if (chessBoard[endYIndex][endXIndex] != "")
+						{
+							i = MAXIMUM_CHECKS; //do not check for any more pieces
+							break; //do not look for any more destination possibilities, we want to prioritize attacking
+						}
+					}
+				}
+			}
+
+			//if there was a valid move selected
+			if (endXIndex > -1 && endYIndex > -1)
+			{
+				validMoveSelected = true; //do not loop anymore
+			}
 		}
 	}
 
@@ -1004,7 +1003,6 @@ void performComputerTurn(std::string &previousTurnAction)
 
 	//perform the move
 	movePiece(startXIndex, startYIndex, endXIndex, endYIndex);
-
 }
 
 //movePiece function
@@ -1013,6 +1011,25 @@ void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
 	chessBoard[startY][startX] = ""; //clear the old start position
+}
+
+//highlightValidMoves function
+//used for highlighting any squares that the player can move their piece returns an array that corresponds with valid potential moves for the piece
+void highlightValidMoves(bool *validSquares, int startX, int startY)
+{
+	//loop through each row
+	for (int i = 0; i < 8; i++)
+	{
+		//loop through each column
+		for (int j = 0; j < 8; j++)
+		{
+			//check if the spot is a valid position for the piece to move
+			if (isValidPieceMovement(startX, startY, j, i))
+				validSquares[i * 8 + j] = true; //set the square to be a valid movement 
+			else //spot is not a valid position
+				validSquares[i * 8 + j] = false;
+		}
+	}
 }
 
 //toggleMusic function
