@@ -27,6 +27,9 @@
 #include <Windows.h>
 #include "Events.h"
 #include <regex>
+#include <conio.h>
+#include <cwchar>
+#include <cstdlib>
 
 // conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
 #undef max
@@ -108,6 +111,72 @@ bool arr[64] = { 0 };
 
 int main()
 {
+	std::cout.width(89);
+	std::cout << "__    _           _             __   _ " << std::endl;
+	std::cout.width(90);
+	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
+	std::cout.width(112);
+	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
+	std::cout.width(116);
+	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+
+
+	std::cout.width(130);
+	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
+	std::cout.width(130);
+	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
+	std::cout.width(132);
+	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
+
+
+	std::cout.width(90);
+	std::cout << "|| Play Game || \n\n\n" << std::endl;
+	std::cout.width(91);
+	std::cout << "|| How To Play || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Player || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Computer || \n\n" << std::endl;
+	std::cout.width(90);
+	std::cout << "|| Quit || \n\n\n\n\n" << std::endl;
+
+
+	std::cout.width(180);
+	std::cout << "Hersh Sheth, 100701911" << std::endl;
+	std::cout.width(180);
+	std::cout << "Evyn Brouwer, 100702629" << std::endl;
+	std::cout.width(180);
+	std::cout << "Sherry Yang, 100637677" << std::endl;
+	std::cout.width(180);
+	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
+	std::cout.width(180);
+	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
+
+	system("color 6");
+	char z = 's';
+	std::string x;
+
+	std::cin >> z;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	initializeBoard();
 
