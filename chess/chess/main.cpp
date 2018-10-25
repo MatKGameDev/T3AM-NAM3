@@ -12,15 +12,12 @@
 /*
 * TODO (Incomplete list)
 * Basic TODOs:
-*  Validate player's entry for start and end coordinates
+*  Add right click to move in the how-to
 *  Main menu screen
-*  Properly structured 2 player gameplay
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Play vs AI option
-*  Allow the user to perform moves with mouse
 *  Time limit for turns
 *  Sound FX/Music
 */
@@ -51,7 +48,11 @@ void howTo();
 
 //getPieceType function prototype
 //takes in a char and returns the name of that piece based on the char
-std::string getPieceType(char pieceChar);
+std::string getPieceName(char pieceChar);
+
+//convertNumberToLetterCoordinate function prototype
+//takes in a number to be converted and changes it to the letter equivalent
+char convertNumberToLetterCoordinate(int numberToConvert);
 
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
@@ -82,130 +83,30 @@ void isInputValid(std::string &userInput, std::string msg);
 void isValidStartP1(std::string &userInput, std::string msg);
 void isValidStartP2(std::string &userInput, std::string msg);
 
+//playGame function prototype
+//allows two players to play chess against each other, or a player can choose to play against a computer
+void playGame(bool isVersusComputer = false);
+
+//performComputerTurn function prototype
+//determines logic for a computer player's turn
+void performComputerTurn(std::string &previousTurnAction);
+
+//movePiece function prototype
+//moves a piece from the start location to the end location
+void movePiece(int startX, int startY, int destinationX, int destinationY);
+
+//toggleMusic function prototype
+//toggles music on or off
+//music taken from royalty free website: www.purple-planet.com/gentle
+void toggleMusic();
+
 int main()
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
-	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
-	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
+	playGame(true);
 
-	initializeBoard(); //reset the chess board
-	drawBoard();       //display the chess board to the user
-
-	// test piece validation and moving them around the board
-
-	std::string userInputStart; //user's input for the start location of the piece
-	std::string userInputEnd;   //user's input for the desired end location of the piece
-	std::string startMsg;       //message for ask user input start position
-	std::string endMsg;         //message for ask user input end position
-	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
-	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
-	while (1)
-	{
-		bool valid = false;		    //initialize valid to false
-		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
-
-		//***NOTE*** 
-		//this is a demo and will need to be refined later on to make it more user friendly
-		//when testing the program, enter x,y coordinate. Do not enter the letter, instead enter it's number equivalent (ex. column A would be a y value of 1, B would be 2, H would be 8, etc.)
-		//example input (move second player's leftmost pawn up 2 spaces): 
-		// first line  - 1,7
-		// second line - 1,5
-
-		// validate the player start point
-		while (valid == false) {
-
-			// perpare messages for output
-			startMsg = " Enter your piece's starting position <x,y>: ";
-			endMsg = "\n Enter the desired end position <x,y>: ";
-
-			// colour highlight for player 
-			if (playerNumber == 1) {
-
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
-
-			    std::cout << "\n Player " << std::to_string(playerNumber);
-			}
-			else {
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
-
-				std::cout << "\n Player " << std::to_string(playerNumber);
-			}
-
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
-
-			std::cout << " enter your piece's starting position <x,y>: ";
-			
-			std::cin >> userInputStart;
-
-			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
-
-			// call function to check start point for player one or two
-
-			if (playerNumber == 1) {
-
-				isValidStartP1(userInputStart, startMsg);
-			}
-			else {
-				isValidStartP2(userInputStart, startMsg);
-			}
-
-			std::cout << "\n Enter the desired end position <x,y>: ";
-			std::cin >> userInputEnd;
-
-			isInputValid(userInputEnd, endMsg);
-
-			int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-			int startY = userInputStart[2] - '0' - 1;
-			// user input passed the pattern check, check for the movement
-			int endX = userInputEnd[0] - '0' - 1;
-			int endY = userInputEnd[2] - '0' - 1;
-
-			// validate the movement
-			if (isValidPieceMovement(startX, startY, endX, endY) == false) {
-
-				std::cout << " Invalid movement \n";
-				valid = false;
-			}
-			else {
-				valid = true;
-			}
-
-		}
-
-		int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		int startY = userInputStart[2] - '0' - 1;
-		int endX = userInputEnd[0] - '0' - 1;
-		int endY = userInputEnd[2] - '0' - 1;
-
-		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
-		{
-			//update the previous turn's action
-			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
-				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
-
-			//check if end location has an enemy piece
-			if (chessBoard[endY][endX] != "")
-				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
-			previousTurnAction += ".";
-
-			//set the new position for the piece and clear the old position
-			chessBoard[endY][endX] = chessBoard[startY][startX];
-			chessBoard[startY][startX] = "";
-
-		}
-
-		drawBoard(); //update board
-
-		//change which player's turn it is
-		if (playerNumber == 1)
-			playerNumber = 2;
-		else
-			playerNumber = 1;
-		
-	}
-
+	std::cout << "\n\n";
 	system("pause");
 	return 0;
 }
@@ -290,15 +191,17 @@ void drawBoard()
 			std::cout << " " << i / 4 + 1 << " *  ";
 			for (int n = 0; n < 15; n++)
 			{
-				if (n % 2 == 0)//if a piece
+				if (n % 2 == 0)//if a piece belongs here
 				{
 					if (chessBoard[i / 4][n / 2].length() == 2)
 					{
-						if (chessBoard[i / 4][n / 2][1] == '1')//if team 1
+						//check if piece belongs to player 1
+						if (chessBoard[i / 4][n / 2][1] == '1')
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);//set the text to blue
 						}
-						else//if team 2
+						//piece belongs to player 2
+						else
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
@@ -438,27 +341,54 @@ void howTo()
 	}
 }
 
-//getPieceType function
+//getPieceName function
 //converts a char into a string to represent a piece
-std::string getPieceType(char pieceChar)
+std::string getPieceName(char pieceChar)
 {
-	std::string pieceString = "";
+	std::string pieceName = ""; //name of the piece to return
 
 	//determine piece name based on the char
 	if (pieceChar == 'P')
-		pieceString = "Pawn";
+		pieceName = "Pawn";
 	else if (pieceChar == 'R')
-		pieceString = "Rook";
+		pieceName = "Rook";
 	else if (pieceChar == 'N')
-		pieceString = "Knight";
+		pieceName = "Knight";
 	else if (pieceChar == 'B')
-		pieceString = "Bishop";
+		pieceName = "Bishop";
 	else if (pieceChar == 'Q')
-		pieceString = "Queen";
+		pieceName = "Queen";
 	else if (pieceChar == 'K')
-		pieceString = "King";
+		pieceName = "King";
 
-	return pieceString;
+	return pieceName;
+}
+
+//convertNumberToLetterCoordinate function
+//takes in a number to be converted and changes it to the letter equivalent
+char convertNumberToLetterCoordinate(int numberToConvert)
+{
+	char convertedNumber = 'Z'; //the number to be converted, initialized to something invalid for error checking
+
+	//convert 1-8 to A-H
+	if (numberToConvert == 1)
+		convertedNumber = 'A';
+	else if (numberToConvert == 2)
+		convertedNumber = 'B';
+	else if (numberToConvert == 3)
+		convertedNumber = 'C';
+	else if (numberToConvert == 4)
+		convertedNumber = 'D';
+	else if (numberToConvert == 5)
+		convertedNumber = 'E';
+	else if (numberToConvert == 6)
+		convertedNumber = 'F';
+	else if (numberToConvert == 7)
+		convertedNumber = 'G';
+	else if (numberToConvert == 8)
+		convertedNumber = 'H';
+
+	return convertedNumber; //return the converted number as a char
 }
 
 //isValidPieceMovement function
