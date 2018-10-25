@@ -27,6 +27,9 @@
 #include <Windows.h>
 #include "Events.h"
 #include <regex>
+#include <conio.h>
+#include <cwchar>
+#include <cstdlib>
 
 // conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
 #undef max
@@ -108,9 +111,76 @@ bool arr[64] = { 0 };
 
 int main()
 {
+	srand(time(NULL));
+
+	std::cout.width(89);
+	std::cout << "__    _           _             __   _ " << std::endl;
+	std::cout.width(90);
+	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
+	std::cout.width(112);
+	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
+	std::cout.width(116);
+	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+
+
+	std::cout.width(130);
+	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
+	std::cout.width(130);
+	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
+	std::cout.width(132);
+	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
+
+
+	std::cout.width(90);
+	std::cout << "|| Play Game || \n\n\n" << std::endl;
+	std::cout.width(91);
+	std::cout << "|| How To Play || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Player || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Computer || \n\n" << std::endl;
+	std::cout.width(90);
+	std::cout << "|| Quit || \n\n\n\n\n" << std::endl;
+
+
+	std::cout.width(180);
+	std::cout << "Hersh Sheth, 100701911" << std::endl;
+	std::cout.width(180);
+	std::cout << "Evyn Brouwer, 100702629" << std::endl;
+	std::cout.width(180);
+	std::cout << "Sherry Yang, 100637677" << std::endl;
+	std::cout.width(180);
+	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
+	std::cout.width(180);
+	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
+
+	system("color 6");
+	char z = 's';
+	std::string x;
+
+	std::cin >> z;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	initializeBoard();
-
 	
 	playGame(true);
 	//highlightValidMoves(arr, 3, 1);
@@ -209,13 +279,9 @@ void drawBoard(bool *validMove)
 				if (arr[((i / 4) * 8) + n])
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
-					std::cout << "     ";
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 				}
-				else
-				{
-					std::cout << "     ";
-				}
+				std::cout << "     ";
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 				std::cout << "*";
 			}
 			std::cout << std::endl;
@@ -855,7 +921,7 @@ void playGame(bool isVersusComputer)
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
 			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
-			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
+			if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
 				//set x and y coordinates for chess board start positions based on the cursor x and y positions
 				startX = tempX;
@@ -865,9 +931,10 @@ void playGame(bool isVersusComputer)
 				highlightValidMoves(validPieces, startX, startY);
 
 				drawBoard();
+				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 			}
-			//else chess board coordinates' start positions are set
-			else
+			//if chess board coordinates' start positions are set
+			else if (startX >= 0 && startY >= 0)
 			{
 				//set x and y coordinates for chess board end positions based on the cursor x and y positions
 				endX = tempX;
@@ -888,6 +955,8 @@ void playGame(bool isVersusComputer)
 					//move the piece
 					movePiece(startX, startY, endX, endY);
 
+					for (int i = 0; i < 64; i++)
+						arr[i] = false;
 					drawBoard(); //update board
 
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
@@ -928,7 +997,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 7;
+	const int MAXIMUM_CHECKS = 15;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
