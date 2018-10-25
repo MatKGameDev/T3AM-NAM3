@@ -43,7 +43,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard(bool* validMove = { false });
+void drawBoard(bool *validMoves);
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -111,16 +111,12 @@ void toggleMusic();
 //displays the main menu
 void showMainMenu();
 
-bool arr[64] = { 0 };
-
 int main()
 {
 	srand(time(NULL)); //seed the random number generator
 
 	showMainMenu(); //open the main menu
 
-	std::cout << "\n\n";
-	system("pause");
 	return 0;
 }
 
@@ -179,7 +175,7 @@ void initializeBoard()
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard(bool *validMove)
+void drawBoard(bool *validMoves)
 {
 	system("cls"); //clear the screen
 
@@ -201,7 +197,7 @@ void drawBoard(bool *validMove)
 				//<<"     *     *     *     *     *     *     *     *\n";
 			for (int n = 0;n < 8;n++)
 			{
-				if (arr[((i / 4) * 8) + n])
+				if (validMoves[((i / 4) * 8) + n])
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 				}
@@ -218,7 +214,7 @@ void drawBoard(bool *validMove)
 			{
 				if (n % 2 == 0)//if a piece belongs here
 				{
-					if (arr[((i / 4) * 8) + n / 2])
+					if (validMoves[((i / 4) * 8) + n / 2])
 					{
 						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 					}
@@ -235,7 +231,7 @@ void drawBoard(bool *validMove)
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
-						if (arr[((i / 4) * 8) + n/2])
+						if (validMoves[((i / 4) * 8) + n/2])
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 						}
@@ -244,7 +240,7 @@ void drawBoard(bool *validMove)
 					
 					else//if empty
 					{
-						if (arr[((i / 4) * 8) + n / 2])
+						if (validMoves[((i / 4) * 8) + n / 2])
 						{
 							//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 						}
@@ -259,7 +255,7 @@ void drawBoard(bool *validMove)
 				}
 				if (n == 14)
 				{
-					if (arr[((i / 4) * 8) + n / 2])
+					if (validMoves[((i / 4) * 8) + n / 2])
 					{
 						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 					}
@@ -283,8 +279,13 @@ void howTo()
 	{
 		system("cls"); //clear screen every time it loops
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
-		std::cout << "1. Terminology\n2. Pawns\n3. Rooks\n4. Knights\n5. Bishops\n6. Queen\n7. King\n8. General rules\n9. Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+		HWND console = GetConsoleWindow();
+		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
+
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		std::cout << "\n\nEnter your selection: ";
 		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
@@ -378,7 +379,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break; //break the loop if the user enters 11
+			showMainMenu();
 		}
 		else
 		{
@@ -811,15 +812,14 @@ void playGame(bool isVersusComputer)
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
-	initializeBoard(); //reset the chess board
-	drawBoard();       //display the chess board to the user
-
-	std::string userInputStart; //user's input for the start location of the piece
-	std::string userInputEnd;   //user's input for the desired end location of the piece
-	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
-	bool validPieces[64];       //an array where each true value determines a spot that a selected piece can be moved
+	std::string userInputStart;      //user's input for the start location of the piece
+	std::string userInputEnd;        //user's input for the desired end location of the piece
+	int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
+	bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
 	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
+	initializeBoard();     //reset the chess board
+	drawBoard(validMoves); //display the chess board to the user
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -830,7 +830,12 @@ void playGame(bool isVersusComputer)
 	int endY;
 
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-	std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+	//display whos turn it is
+	if (isVersusComputer)
+		std::cout << " Your turn.";
+	else
+		std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
 
 	while (1)
 	{
@@ -855,10 +860,19 @@ void playGame(bool isVersusComputer)
 				startY = tempY;
 
 				//update the board to show the valid movement options for the selected piece
-				highlightValidMoves(validPieces, startX, startY);
+				highlightValidMoves(validMoves, startX, startY);
 
-				drawBoard();
+				drawBoard(validMoves);
 				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+   			    //if the player is against the computer
+				if (isVersusComputer)
+				{
+					std::cout << " Your turn.";
+				}
+				else //player vs player
+				{
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+				}
 			}
 			//if chess board coordinates' start positions are set
 			else if (startX >= 0 && startY >= 0)
@@ -871,9 +885,15 @@ void playGame(bool isVersusComputer)
 				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
 					//update the previous turn's action
-					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+					if (isVersusComputer)
+						previousTurnAction = " You";
+					else
+						previousTurnAction = " Player " + std::to_string(playerNumber);
+
+					previousTurnAction += " moved " + getPieceName(chessBoard[startY][startX][0]) +
 						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
 						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+
 					//check if end location has an enemy piece
 					if (chessBoard[endY][endX] != "")
 						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
@@ -882,9 +902,11 @@ void playGame(bool isVersusComputer)
 					//move the piece
 					movePiece(startX, startY, endX, endY);
 
+					//reset all squares to invalid movement options till next turn
 					for (int i = 0; i < 64; i++)
-						arr[i] = false;
-					drawBoard(); //update board
+						validMoves[i] = false;
+
+					drawBoard(validMoves); //update board
 
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 
@@ -894,7 +916,7 @@ void playGame(bool isVersusComputer)
 						std::cout << " Computer player's turn.";
 						Sleep(1500);
 						performComputerTurn(previousTurnAction); //determine the computer player's action
-						drawBoard(); //update board
+						drawBoard(validMoves); //update board
 						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 						std::cout << " Your turn."; //tell the user it's their turn
 					}
@@ -924,7 +946,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 15;
+	const int MAXIMUM_CHECKS = 20;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
@@ -969,6 +991,7 @@ void performComputerTurn(std::string &previousTurnAction)
 					endXIndex = startXIndex - 1;
 					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
+					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//check if it can attack up and to the right
 				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
@@ -976,6 +999,7 @@ void performComputerTurn(std::string &previousTurnAction)
 					endXIndex = startXIndex + 1;
 					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
+					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//can't attack, find a spot to move it
 				else
@@ -1000,7 +1024,7 @@ void performComputerTurn(std::string &previousTurnAction)
 			else
 			{
 				//loop 80 times checking for a valid move
-				for (int j = 0; j < 80; j++)
+				for (int j = 0; j < 99; j++)
 				{
 					//set a random x and y index between 0 and 7
 					tempEndXIndex = rand() % 8;
@@ -1064,9 +1088,9 @@ void highlightValidMoves(bool *validSquares, int startX, int startY)
 		{
 			//check if the spot is a valid position for the piece to move
 			if (isValidPieceMovement(startX, startY, j, i))
-				arr[i * 8 + j] = true; //set the square to be a valid movement 
+				validSquares[i * 8 + j] = true; //set the square to be a valid movement 
 			else //spot is not a valid position
-				arr[i * 8 + j] = false;
+				validSquares[i * 8 + j] = false;
 		}
 	}
 }
@@ -1135,7 +1159,7 @@ void showMainMenu()
 	std::cout.width(94);
 	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
 	std::cout.width(94);
-	std::cout << " || [3] Player vs Computer || \n\n" << std::endl;
+	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
 	std::cout.width(90);
 	std::cout << "|| [4] Quit || \n\n\n\n\n" << std::endl;
 
