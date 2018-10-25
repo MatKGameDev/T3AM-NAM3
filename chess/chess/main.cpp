@@ -111,6 +111,8 @@ bool arr[64] = { 0 };
 
 int main()
 {
+	srand(time(NULL));
+
 	std::cout.width(89);
 	std::cout << "__    _           _             __   _ " << std::endl;
 	std::cout.width(90);
@@ -179,7 +181,6 @@ int main()
 	std::cin >> z;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	initializeBoard();
-
 	
 	playGame(true);
 	//highlightValidMoves(arr, 3, 1);
@@ -934,6 +935,7 @@ void playGame(bool isVersusComputer)
 				highlightValidMoves(validPieces, startX, startY);
 
 				drawBoard();
+				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 			}
 			//if chess board coordinates' start positions are set
 			else if (startX >= 0 && startY >= 0)
@@ -957,6 +959,8 @@ void playGame(bool isVersusComputer)
 					//move the piece
 					movePiece(startX, startY, endX, endY);
 
+					for (int i = 0; i < 64; i++)
+						arr[i] = false;
 					drawBoard(); //update board
 
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
@@ -997,7 +1001,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 7;
+	const int MAXIMUM_CHECKS = 15;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
