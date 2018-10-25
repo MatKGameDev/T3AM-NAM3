@@ -277,13 +277,15 @@ void drawBoard(bool validMoves[64])
 	}
 }
 
+bool isEnd = false;
+
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
 {
 	std::string response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
 
-	while (1)
+	while (!isEnd)
 	{
 		system("cls"); //clear screen every time it loops
 
@@ -389,7 +391,8 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break;
+			isEnd = true;
+			showMainMenu();
 		}
 		else
 		{
@@ -1355,13 +1358,20 @@ void showMainMenu()
 
 	system("color 6");
 
+	char key;
+	
 	while (!isDone)
 	{
 		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
 		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
-		if (GetAsyncKeyState('1') & 0x8000)
+		if (isEvent(Events::One)) {
+			std::cin >> key;
+			if (key == '1') {
+				isEnd = false;
+			}
 			howTo();
+		}
 		//check for 2 (player vs player)
 		else if (GetAsyncKeyState('2') & 0x8000)
 			playGame();
