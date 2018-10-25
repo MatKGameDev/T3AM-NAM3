@@ -107,95 +107,18 @@ void highlightValidMoves(bool *validSquares, int startX, int startY);
 //music taken from royalty free website: www.purple-planet.com/gentle
 void toggleMusic();
 
+//showMainMenu function prototype
+//displays the main menu
+void showMainMenu();
+
 bool arr[64] = { 0 };
 
 int main()
 {
-	srand(time(NULL));
+	srand(time(NULL)); //seed the random number generator
 
-	std::cout.width(89);
-	std::cout << "__    _           _             __   _ " << std::endl;
-	std::cout.width(90);
-	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
-	std::cout.width(112);
-	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
-	std::cout.width(113);
-	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
-	std::cout.width(113);
-	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
-	std::cout.width(116);
-	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+	showMainMenu(); //open the main menu
 
-
-	std::cout.width(130);
-	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
-	std::cout.width(130);
-	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
-	std::cout.width(130);
-	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
-	std::cout.width(132);
-	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
-
-
-	std::cout.width(90);
-	std::cout << "|| Play Game || \n\n\n" << std::endl;
-	std::cout.width(91);
-	std::cout << "|| How To Play || \n\n\n" << std::endl;
-	std::cout.width(94);
-	std::cout << " || Player vs Player || \n\n\n" << std::endl;
-	std::cout.width(94);
-	std::cout << " || Player vs Computer || \n\n" << std::endl;
-	std::cout.width(90);
-	std::cout << "|| Quit || \n\n\n\n\n" << std::endl;
-
-
-	std::cout.width(180);
-	std::cout << "Hersh Sheth, 100701911" << std::endl;
-	std::cout.width(180);
-	std::cout << "Evyn Brouwer, 100702629" << std::endl;
-	std::cout.width(180);
-	std::cout << "Sherry Yang, 100637677" << std::endl;
-	std::cout.width(180);
-	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
-	std::cout.width(180);
-	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
-
-	system("color 6");
-	char z = 's';
-	std::string x;
-
-	std::cin >> z;
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
-	initializeBoard();
-	
-	playGame(true);
-	//highlightValidMoves(arr, 3, 1);
-
-	/*for (int i = 0; i < 8; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 8; j++)
-		{ 
-			std::cout << arr[i * 8 + j];
-		}
-	}*/
-
-	std::cout << "\n\n";
-	system("pause");
 	return 0;
 }
 
@@ -358,8 +281,13 @@ void howTo()
 	{
 		system("cls"); //clear screen every time it loops
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
-		std::cout << "1. Terminology\n2. Pawns\n3. Rooks\n4. Knights\n5. Bishops\n6. Queen\n7. King\n8. General rules\n9. Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+		HWND console = GetConsoleWindow();
+		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
+
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		std::cout << "\n\nEnter your selection: ";
 		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
@@ -453,7 +381,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break; //break the loop if the user enters 11
+			showMainMenu();
 		}
 		else
 		{
@@ -882,7 +810,9 @@ void playGame(bool isVersusComputer)
 {
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
+	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
 	initializeBoard(); //reset the chess board
 	drawBoard();       //display the chess board to the user
@@ -903,7 +833,11 @@ void playGame(bool isVersusComputer)
 	int endY;
 
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-	std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+	if (isVersusComputer)
+		std::cout << " Your turn.";
+	else
+		std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
 
 	while (1)
 	{
@@ -932,6 +866,15 @@ void playGame(bool isVersusComputer)
 
 				drawBoard();
 				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+   			    //if the player is against the computer
+				if (isVersusComputer)
+				{
+					std::cout << " Your turn.";
+				}
+				else //player vs player
+				{
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+				}
 			}
 			//if chess board coordinates' start positions are set
 			else if (startX >= 0 && startY >= 0)
@@ -944,9 +887,15 @@ void playGame(bool isVersusComputer)
 				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
 					//update the previous turn's action
-					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+					if (isVersusComputer)
+						previousTurnAction = " You";
+					else
+						previousTurnAction = " Player " + std::to_string(playerNumber);
+
+					previousTurnAction += " moved " + getPieceName(chessBoard[startY][startX][0]) +
 						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
 						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+
 					//check if end location has an enemy piece
 					if (chessBoard[endY][endX] != "")
 						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
@@ -997,7 +946,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 15;
+	const int MAXIMUM_CHECKS = 20;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
@@ -1150,4 +1099,97 @@ void toggleMusic()
 {
 	//mciSendString("open \"*.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
 	//mciSendString("play mp3 repeat", NULL, 0, NULL);
+}
+
+//showMainMenu function prototype
+//displays the main menu
+void showMainMenu()
+{
+	bool isDone = false;
+
+	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+	HWND console = GetConsoleWindow();
+	MoveWindow(console, 100, 0, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
+
+	//display "MAIN MENU"
+	std::cout.width(89);
+	std::cout << "__    _           _             __   _ " << std::endl;
+	std::cout.width(90);
+	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
+	std::cout.width(112);
+	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
+	std::cout.width(116);
+	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+
+	//display "CHESS"
+	std::cout.width(130);
+	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
+	std::cout.width(130);
+	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
+	std::cout.width(132);
+	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
+
+	//display all menu options
+	std::cout.width(98);
+	std::cout << "Enter one of the following options:\n\n\n";
+	std::cout.width(90);
+	std::cout << "|| [1] How To Play || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
+	std::cout.width(90);
+	std::cout << "|| [4] Quit || \n\n\n\n\n" << std::endl;
+
+	//display our names :D
+	std::cout.width(130);
+	std::cout << "Hersh Sheth, 100701911" << std::endl;
+	std::cout.width(130);
+	std::cout << "Evyn Brouwer, 100702629" << std::endl;
+	std::cout.width(130);
+	std::cout << "Sherry Yang, 100637677" << std::endl;
+	std::cout.width(130);
+	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
+	std::cout.width(130);
+	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
+
+	system("color 6");
+
+	while (!isDone)
+	{
+		//check for 1 (how to play)
+		if (isEvent(Events::One))
+			howTo();
+		//check for 2 (player vs player)
+		else if (isEvent(Events::Two))
+			playGame();
+		//check for 3 (player vs computer)
+		else if (isEvent(Events::Three))
+			playGame(true);
+		//check for 4 (player wants to exit)
+		else if (isEvent(Events::Four))
+			isDone = true;
+
+		Sleep(100);
+	}
 }
