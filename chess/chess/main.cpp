@@ -269,13 +269,15 @@ void drawBoard(bool *validMoves)
 	}
 }
 
+bool isEnd = false;
+
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
 {
 	std::string response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
 
-	while (1)
+	while (!isEnd)
 	{
 		system("cls"); //clear screen every time it loops
 
@@ -379,6 +381,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
+			isEnd = true;
 			showMainMenu();
 		}
 		else
@@ -1177,11 +1180,18 @@ void showMainMenu()
 
 	system("color 6");
 
+	char key;
+	
 	while (!isDone)
 	{
 		//check for 1 (how to play)
-		if (isEvent(Events::One))
+		if (isEvent(Events::One)) {
+			std::cin >> key;
+			if (key == '1') {
+				isEnd = false;
+			}
 			howTo();
+		}
 		//check for 2 (player vs player)
 		else if (isEvent(Events::Two))
 			playGame();
