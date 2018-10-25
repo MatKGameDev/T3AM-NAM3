@@ -7,19 +7,17 @@
 //               100706090 - Thaidan Goguen-Bogdanis
 // Date:        Oct 9, 2018
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
+//References: https://www.youtube.com/watch?v=8fCwUwI31Dk,
 
 /*
 * TODO (Incomplete list)
 * Basic TODOs:
-*  Validate player's entry for start and end coordinates
+*  Add right click to move in the how-to
 *  Main menu screen
-*  Properly structured 2 player gameplay
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Play vs AI option
-*  Allow the user to perform moves with mouse
 *  Time limit for turns
 *  Sound FX/Music
 */
@@ -29,6 +27,9 @@
 #include <Windows.h>
 #include "Events.h"
 #include <regex>
+#include <conio.h>
+#include <cwchar>
+#include <cstdlib>
 
 // conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
 #undef max
@@ -42,7 +43,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard();
+void drawBoard(bool* validMove = { false });
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -50,7 +51,11 @@ void howTo();
 
 //getPieceType function prototype
 //takes in a char and returns the name of that piece based on the char
-std::string getPieceType(char pieceChar);
+std::string getPieceName(char pieceChar);
+
+//convertNumberToLetterCoordinate function prototype
+//takes in a number to be converted and changes it to the letter equivalent
+char convertNumberToLetterCoordinate(int numberToConvert);
 
 //isValidPieceMovement function prototype
 //figures out if a piece is allowed to be moved to the user's destination
@@ -81,115 +86,115 @@ void isInputValid(std::string &userInput, std::string msg);
 void isValidStartP1(std::string &userInput, std::string msg);
 void isValidStartP2(std::string &userInput, std::string msg);
 
+//playGame function prototype
+//allows two players to play chess against each other, or a player can choose to play against a computer
+void playGame(bool isVersusComputer = false);
+
+//performComputerTurn function prototype
+//determines logic for a computer player's turn
+void performComputerTurn(std::string &previousTurnAction);
+
+//movePiece function prototype
+//moves a piece from the start location to the end location
+void movePiece(int startX, int startY, int destinationX, int destinationY);
+
+//highlightValidMoves function prototype
+//used for highlighting any squares that the player can move their piece, returns an array that corresponds with valid potential moves for the piece
+void highlightValidMoves(bool *validSquares, int startX, int startY);
+
+//toggleMusic function prototype
+//toggles music on or off
+//music taken from royalty free website: www.purple-planet.com/gentle
+void toggleMusic();
+
+bool arr[64] = { 0 };
+
 int main()
 {
+	srand(time(NULL));
+
+	std::cout.width(89);
+	std::cout << "__    _           _             __   _ " << std::endl;
+	std::cout.width(90);
+	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
+	std::cout.width(112);
+	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
+	std::cout.width(116);
+	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+
+
+	std::cout.width(130);
+	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
+	std::cout.width(130);
+	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
+	std::cout.width(132);
+	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
+
+
+	std::cout.width(90);
+	std::cout << "|| Play Game || \n\n\n" << std::endl;
+	std::cout.width(91);
+	std::cout << "|| How To Play || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Player || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || Player vs Computer || \n\n" << std::endl;
+	std::cout.width(90);
+	std::cout << "|| Quit || \n\n\n\n\n" << std::endl;
+
+
+	std::cout.width(180);
+	std::cout << "Hersh Sheth, 100701911" << std::endl;
+	std::cout.width(180);
+	std::cout << "Evyn Brouwer, 100702629" << std::endl;
+	std::cout.width(180);
+	std::cout << "Sherry Yang, 100637677" << std::endl;
+	std::cout.width(180);
+	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
+	std::cout.width(180);
+	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
+
+	system("color 6");
+	char z = 's';
+	std::string x;
+
+	std::cin >> z;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+	initializeBoard();
+	
+	playGame(true);
+	//highlightValidMoves(arr, 3, 1);
 
-	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
-	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
-
-	initializeBoard(); //reset the chess board
-	drawBoard();       //display the chess board to the user
-
-	// test piece validation and moving them around the board
-
-	std::string userInputStart; //user's input for the start location of the piece
-	std::string userInputEnd;   //user's input for the desired end location of the piece
-	std::string startMsg;       //message for ask user input start position
-	std::string endMsg;         //message for ask user input end position
-	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
-	std::string previousTurnAction = "Game started."; //a small description of the previous turn's action
-	while (1)
+	/*for (int i = 0; i < 8; i++)
 	{
-		bool valid = false;		    //initialize valid to false
-		std::cout << "\n " << previousTurnAction << std::endl; //output a description of the previous turn's action
-
-		//***NOTE*** 
-		//this is a demo and will need to be refined later on to make it more user friendly
-		//when testing the program, enter x,y coordinate. Do not enter the letter, instead enter it's number equivalent (ex. column A would be a y value of 1, B would be 2, H would be 8, etc.)
-		//example input (move second player's leftmost pawn up 2 spaces): 
-		// first line  - 1,7
-		// second line - 1,5
-
-		// validate the player start point
-		while (valid == false) {
-
-			// perpare messages for output
-			startMsg = " Enter your piece's starting position <x,y>: ";
-			endMsg = "\n Enter the desired end position <x,y>: ";
-
-			std::cout << "\n Player " << std::to_string(playerNumber) << " enter your piece's starting position <x,y>: ";
-			std::cin >> userInputStart;
-
-			isInputValid(userInputStart, startMsg); // call isInputValid to do clear input and ask valid input
-
-			// call function to check start point for player one or two
-
-			if (playerNumber == 1) {
-
-				isValidStartP1(userInputStart, startMsg);
-			}
-			else {
-				isValidStartP2(userInputStart, startMsg);
-			}
-
-			std::cout << "\n Enter the desired end position <x,y>: ";
-			std::cin >> userInputEnd;
-
-			isInputValid(userInputEnd, endMsg);
-
-			int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-			int startY = userInputStart[2] - '0' - 1;
-			// user input passed the pattern check, check for the movement
-			int endX = userInputEnd[0] - '0' - 1;
-			int endY = userInputEnd[2] - '0' - 1;
-
-			// validate the movement
-			if (isValidPieceMovement(startX, startY, endX, endY) == false) {
-
-				std::cout << " Invalid movement \n";
-				valid = false;
-			}
-			else {
-				valid = true;
-			}
-
+		std::cout << "\n";
+		for (int j = 0; j < 8; j++)
+		{ 
+			std::cout << arr[i * 8 + j];
 		}
+	}*/
 
-		int startX = userInputStart[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		int startY = userInputStart[2] - '0' - 1;
-		int endX = userInputEnd[0] - '0' - 1;
-		int endY = userInputEnd[2] - '0' - 1;
-
-		if (isValidPieceMovement(startX, startY, endX, endY)) //if piece movement is valid, move it
-		{
-			//update the previous turn's action
-
-			previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceType(chessBoard[startY][startX][0]) +
-				" from (" + std::to_string(startX + 1) + ", " + std::to_string(startY + 1) + ") to (" + std::to_string(endX + 1) + ", " + std::to_string(endY + 1) + ")";
-
-			//check if end location has an enemy piece
-			if (chessBoard[endY][endX] != "")
-				previousTurnAction += "\n And took the enemy's " + getPieceType(chessBoard[endY][endX][0]);
-			previousTurnAction += ".";
-
-			//set the new position for the piece and clear the old position
-			chessBoard[endY][endX] = chessBoard[startY][startX];
-			chessBoard[startY][startX] = "";
-
-		}
-
-		drawBoard(); //update board
-
-		//change which player's turn it is
-		if (playerNumber == 1)
-			playerNumber = 2;
-		else
-			playerNumber = 1;
-		
-	}
-
+	std::cout << "\n\n";
 	system("pause");
 	return 0;
 }
@@ -249,7 +254,7 @@ void initializeBoard()
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard()
+void drawBoard(bool *validMove)
 {
 	system("cls"); //clear the screen
 
@@ -258,48 +263,87 @@ void drawBoard()
 	//leave 1 block space in every direction around the pieces
 	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
 
-	std::cout << "\n" << "      A1    B2    C3    D4    E5    F6    G7    H8\n";
-	for (int i = 0; i < 33; i++)
+	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
+	for (int i = 0; i < 33; i++)//for the size of the board
 	{
-		if (i % 4 == 0)
+		if (i % 4 == 0)//prints out the horiztonal border
 		{
 			std::cout << "   *************************************************\n";
 		}
-		if (i % 4 == 1 || i % 4 == 3)
+		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
 		{
-			std::cout << "   *     *     *     *     *     *     *     *     *\n";
-		}
-		if (i % 4 == 2)
-		{
-			std::cout << " " << i / 4 + 1 << " *  ";
-			for (int n = 0; n < 15; n++)
+			std::cout << "   *";
+				//<<"     *     *     *     *     *     *     *     *\n";
+			for (int n = 0;n < 8;n++)
 			{
-				if (n % 2 == 0)
+				if (arr[((i / 4) * 8) + n])
 				{
-					if (chessBoard[i / 4][n / 2].length() == 2)
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+				}
+				std::cout << "     ";
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+				std::cout << "*";
+			}
+			std::cout << std::endl;
+		}
+		if (i % 4 == 2)//print out the pieces 
+		{
+			std::cout << " "<< i / 4 + 1 << " *";//print the row identifier
+			for (int n = 0; n < 15; n++)//print out the row of pieces
+			{
+				if (n % 2 == 0)//if a piece belongs here
+				{
+					if (arr[((i / 4) * 8) + n / 2])
 					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
+					if (chessBoard[i / 4][n / 2] != "")//validation to make sure the piece exists
+					{
+						//check if piece belongs to player 1
 						if (chessBoard[i / 4][n / 2][1] == '1')
 						{
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 241);//set the text to blue
 						}
+						//piece belongs to player 2
 						else
 						{
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
-						std::cout << chessBoard[i / 4][n / 2][0];
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+						if (arr[((i / 4) * 8) + n/2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
+						std::cout << chessBoard[i / 4][n / 2][0];//print out the piece type
 					}
-					else
+					
+					else//if empty
 					{
-						std::cout << chessBoard[i / 4][n / 2][0];
+						if (arr[((i / 4) * 8) + n / 2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
+						std::cout << chessBoard[i / 4][n / 2][0];//print out a space
 					}
 				}
 				else
 				{
-					std::cout << "  *  ";
+					std::cout << "  ";//print a piece of the vertical border
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
+				}
+				if (n == 14)
+				{
+					if (arr[((i / 4) * 8) + n / 2])
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
 				}
 			}
-			std::cout << "  *\n";
+			std::cout << std::endl;//the end of the row
 		}
 	}
 }
@@ -422,27 +466,54 @@ void howTo()
 	}
 }
 
-//getPieceType function
+//getPieceName function
 //converts a char into a string to represent a piece
-std::string getPieceType(char pieceChar)
+std::string getPieceName(char pieceChar)
 {
-	std::string pieceString = "";
+	std::string pieceName = ""; //name of the piece to return
 
 	//determine piece name based on the char
 	if (pieceChar == 'P')
-		pieceString = "Pawn";
+		pieceName = "Pawn";
 	else if (pieceChar == 'R')
-		pieceString = "Rook";
+		pieceName = "Rook";
 	else if (pieceChar == 'N')
-		pieceString = "Knight";
+		pieceName = "Knight";
 	else if (pieceChar == 'B')
-		pieceString = "Bishop";
+		pieceName = "Bishop";
 	else if (pieceChar == 'Q')
-		pieceString = "Queen";
+		pieceName = "Queen";
 	else if (pieceChar == 'K')
-		pieceString = "King";
+		pieceName = "King";
 
-	return pieceString;
+	return pieceName;
+}
+
+//convertNumberToLetterCoordinate function
+//takes in a number to be converted and changes it to the letter equivalent
+char convertNumberToLetterCoordinate(int numberToConvert)
+{
+	char convertedNumber = 'Z'; //the number to be converted, initialized to something invalid for error checking
+
+	//convert 1-8 to A-H
+	if (numberToConvert == 1)
+		convertedNumber = 'A';
+	else if (numberToConvert == 2)
+		convertedNumber = 'B';
+	else if (numberToConvert == 3)
+		convertedNumber = 'C';
+	else if (numberToConvert == 4)
+		convertedNumber = 'D';
+	else if (numberToConvert == 5)
+		convertedNumber = 'E';
+	else if (numberToConvert == 6)
+		convertedNumber = 'F';
+	else if (numberToConvert == 7)
+		convertedNumber = 'G';
+	else if (numberToConvert == 8)
+		convertedNumber = 'H';
+
+	return convertedNumber; //return the converted number as a char
 }
 
 //isValidPieceMovement function
@@ -726,11 +797,11 @@ bool isInputPattern(const std::string& input)
 //and ask for valid Input from user
 void isInputValid(std::string &userInput, std::string msg)
 {
-	while (isInputPattern(userInput) == false) {
-
+	while (isInputPattern(userInput) == false) 
+	{
 		std::cout << " Invalid Input \n";
 		std::cin.clear(); // reset cin for next input
-		// ignore the user input, passing in the maximize size a user could input to clear
+						  // ignore the user input, passing in the maximize size a user could input to clear
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		std::cout << msg;
@@ -742,46 +813,29 @@ void isInputValid(std::string &userInput, std::string msg)
 void isValidStartP1(std::string &userInput, std::string msg)
 {
 	bool valid = false;
-		
-	while (valid == false) {
 
+	while (valid == false) 
+	{
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 		int startY = userInput[2] - '0' - 1;
 
 		// the start piece is not empty
-		if (chessBoard[startY][startX] != "") {
-			// the start point is actually has player one's piece
-			if (chessBoard[startY][startX] == "R1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "N1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "B1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "Q1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "K1")
-				valid = true;
-			else if (chessBoard[startY][startX] == "P1")
-				valid = true;
-			else 
-				valid = false;
-		}
-		else {
+		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '1') 
 			valid = false;
-		}
+		else 
+			valid = false;
 
-		if (valid == false) {
-
+		if (valid == false) 
+		{
 			std::cout << " Invalid Start Piece \n";
 			std::cin.clear(); // reset cin for next input
-			// ignore the user input, passing in the maximize size a user could input to clear
+							  // ignore the user input, passing in the maximize size a user could input to clear
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 			std::cout << msg;
 			std::cin >> userInput;// ask user input the valid x,y
 		}
-	
 	}
 }
 
@@ -790,43 +844,310 @@ void isValidStartP2(std::string &userInput, std::string msg)
 {
 	bool valid = false;
 
-	while (valid == false) {
-
+	while (valid == false) 
+	{
 		// check for start point
 		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
 		int startY = userInput[2] - '0' - 1;
 
 		// the start piece is not empty
-		if (chessBoard[startY][startX] != "") {
-			// the start point is actually has player two's piece
-			if (chessBoard[startY][startX] == "R2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "N2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "B2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "Q2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "K2")
-				valid = true;
-			else if (chessBoard[startY][startX] == "P2")
-				valid = true;
-			else
-				valid = false;
-		}
-		else {
+		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '2')
 			valid = false;
-		}
+		else
+			valid = false;
 
-		if (valid == false) {
-
+		if (valid == false) 
+		{
 			std::cout << " Invalid Start Piece \n";
 			std::cin.clear(); // reset cin for next input
-			// ignore the user input, passing in the maximize size a user could input to clear
+							  // ignore the user input, passing in the maximize size a user could input to clear
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 			std::cout << msg;
 			std::cin >> userInput;// ask user input the valid x,y
 		}
 	}
+}
+
+//isEvent function
+//checks if a valid key was pressed
+bool isEvent(unsigned char event)
+{
+	return GetAsyncKeyState(event);
+}
+
+//playGame function
+//performs all actions that allow a user to play against another player, or against a computer player
+void playGame(bool isVersusComputer)
+{
+	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+	HWND console = GetConsoleWindow();
+	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
+
+	initializeBoard(); //reset the chess board
+	drawBoard();       //display the chess board to the user
+
+	std::string userInputStart; //user's input for the start location of the piece
+	std::string userInputEnd;   //user's input for the desired end location of the piece
+	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
+	bool validPieces[64];       //an array where each true value determines a spot that a selected piece can be moved
+	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
+
+
+	//declare all variables for holding x and y values
+	int tempX;
+	int tempY;
+	int startX = -1;
+	int startY = -1;
+	int endX;
+	int endY;
+
+	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+	std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+	while (1)
+	{
+		//declare and set the cursor position to get the x and y values (in pixels)
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		ScreenToClient(GetConsoleWindow(), &cursorPos);
+
+		//if a spot on the chess board was clicked
+		if (isEvent(Events::Mouse_Right))
+		{
+			//store the x and y coordinates of the position on the chess board that was clicked
+			//convert the x and y from pixles to coordinates, using the width as x and height as y of each square
+			tempX = (cursorPos.x - 26) / 48; //26 is the pixels between the left side of console window and the left side of the board. 48 is the width of each square
+			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
+
+			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
+			if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
+			{
+				//set x and y coordinates for chess board start positions based on the cursor x and y positions
+				startX = tempX;
+				startY = tempY;
+
+				//update the board to show the valid movement options for the selected piece
+				highlightValidMoves(validPieces, startX, startY);
+
+				drawBoard();
+				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+			}
+			//if chess board coordinates' start positions are set
+			else if (startX >= 0 && startY >= 0)
+			{
+				//set x and y coordinates for chess board end positions based on the cursor x and y positions
+				endX = tempX;
+				endY = tempY;
+
+				//if piece movement is valid, move it
+				if (isValidPieceMovement(startX, startY, endX, endY))
+				{
+					//update the previous turn's action
+					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
+						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+					//check if end location has an enemy piece
+					if (chessBoard[endY][endX] != "")
+						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
+					previousTurnAction += ".";
+
+					//move the piece
+					movePiece(startX, startY, endX, endY);
+
+					for (int i = 0; i < 64; i++)
+						arr[i] = false;
+					drawBoard(); //update board
+
+					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+
+					//if the player is against the computer
+					if (isVersusComputer)
+					{
+						std::cout << " Computer player's turn.";
+						Sleep(1500);
+						performComputerTurn(previousTurnAction); //determine the computer player's action
+						drawBoard(); //update board
+						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+						std::cout << " Your turn."; //tell the user it's their turn
+					}
+					else //player vs player
+					{
+						//change which player's turn it is
+						if (playerNumber == 1)
+							playerNumber = 2;
+						else
+							playerNumber = 1;
+
+						std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+					}
+
+					//reset start x and y
+					startX = -1;
+					startY = -1;
+				}
+			}
+
+			Sleep(100); //pause for 100ms (run at 10fps)
+		}
+	}
+}
+
+//performComputerTurn function
+//determines an action for the computer to perform on its turn
+void performComputerTurn(std::string &previousTurnAction)
+{
+	const int MAXIMUM_CHECKS = 15;
+
+	bool validMoveSelected;  //loop condition for the entire computer's turn
+	bool validPieceSelected; //loop condition for selecting a starting position for a piece
+
+	int startXIndex;   //starting x value for the piece to be moved
+	int startYIndex;   //starting y value for the piece to be moved
+	int tempEndXIndex; //stores a temporary ending x value before checking if the move is valid
+	int tempEndYIndex; //stores a temporary ending y value before checking if the move is valid
+	int endXIndex;	   //ending x value for the piece to move to
+	int endYIndex;	   //ending y value for the piece to move to
+
+	for (int i = 0; i < MAXIMUM_CHECKS; i++)
+	{
+		validMoveSelected = false;
+		//loop until there is a valid move generated
+		while (!validMoveSelected)
+		{
+			validPieceSelected = false;
+			//loop until a valid piece is selected
+			while (!validPieceSelected)
+			{
+				//get random start x index between 0 and 7
+				startXIndex = rand() % 8;
+				//get random start y index between 0 and 7
+				startYIndex = rand() % 8;
+
+				//check if the piece belongs to the computer player
+				if (chessBoard[startYIndex][startXIndex] != "" && chessBoard[startYIndex][startXIndex][1] == '2')
+					validPieceSelected = true;
+			}
+
+			//set the indexes to -1 temporarily so we can check if they were set later
+			endXIndex = -1;
+			endYIndex = -1;
+
+			//if a pawn was selected
+			if (chessBoard[startYIndex][startXIndex][0] == 'P')
+			{
+				//check if it can attack up and to the left
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
+				{
+					endXIndex = startXIndex - 1;
+					endYIndex = startYIndex - 1;
+					validMoveSelected = true;
+				}
+				//check if it can attack up and to the right
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
+				{
+					endXIndex = startXIndex + 1;
+					endYIndex = startYIndex - 1;
+					validMoveSelected = true;
+				}
+				//can't attack, find a spot to move it
+				else
+				{
+					//try to move it 2 spaces up
+					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
+					{
+						endXIndex = startXIndex;
+						endYIndex = startYIndex - 2;
+						validMoveSelected = true;
+					}
+					//try to move it 1 space up
+					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
+					{
+						endXIndex = startXIndex;
+						endYIndex = startYIndex - 1;
+						validMoveSelected = true;
+					}
+				}
+			}
+			//piece is not a pawn, try to move it randomly, prioritizing attacking
+			else
+			{
+				//loop 80 times checking for a valid move
+				for (int j = 0; j < 80; j++)
+				{
+					//set a random x and y index between 0 and 7
+					tempEndXIndex = rand() % 8;
+					tempEndYIndex = rand() % 8;
+
+					//if the randomly selected destination is a valid move
+					if (isValidPieceMovement(startXIndex, startYIndex, tempEndXIndex, tempEndYIndex))
+					{
+						//set the end indexes
+						endXIndex = tempEndXIndex;
+						endYIndex = tempEndYIndex;
+
+						//if the move is also attacking another piece
+						if (chessBoard[endYIndex][endXIndex] != "")
+						{
+							i = MAXIMUM_CHECKS; //do not check for any more pieces
+							break; //do not look for any more destination possibilities, we want to prioritize attacking
+						}
+					}
+				}
+			}
+
+			//if there was a valid move selected
+			if (endXIndex > -1 && endYIndex > -1)
+			{
+				validMoveSelected = true; //do not loop anymore
+			}
+		}
+	}
+
+	//update the previous turn's action
+	previousTurnAction = " Computer player moved " + getPieceName(chessBoard[startYIndex][startXIndex][0]) +
+		" from " + convertNumberToLetterCoordinate(startXIndex + 1) + std::to_string(startYIndex + 1) + " to " +
+		convertNumberToLetterCoordinate(endXIndex + 1) + std::to_string(endYIndex + 1);
+	//check if end location has an enemy piece
+	if (chessBoard[endYIndex][endXIndex] != "")
+		previousTurnAction += "\n And took your " + getPieceName(chessBoard[endYIndex][endXIndex][0]);
+	previousTurnAction += ".";
+
+	//perform the move
+	movePiece(startXIndex, startYIndex, endXIndex, endYIndex);
+}
+
+//movePiece function
+//moves a piece from the start to the end location and clears the old start location
+void movePiece(int startX, int startY, int destinationX, int destinationY)
+{
+	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
+	chessBoard[startY][startX] = ""; //clear the old start position
+}
+
+//highlightValidMoves function
+//used for highlighting any squares that the player can move their piece returns an array that corresponds with valid potential moves for the piece
+void highlightValidMoves(bool *validSquares, int startX, int startY)
+{
+	//loop through each row
+	for (int i = 0; i < 8; i++)
+	{
+		//loop through each column
+		for (int j = 0; j < 8; j++)
+		{
+			//check if the spot is a valid position for the piece to move
+			if (isValidPieceMovement(startX, startY, j, i))
+				arr[i * 8 + j] = true; //set the square to be a valid movement 
+			else //spot is not a valid position
+				arr[i * 8 + j] = false;
+		}
+	}
+}
+
+//toggleMusic function
+//toggles music on or off
+void toggleMusic()
+{
+	//mciSendString("open \"*.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
+	//mciSendString("play mp3 repeat", NULL, 0, NULL);
 }
