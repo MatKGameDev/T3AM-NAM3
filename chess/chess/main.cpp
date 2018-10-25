@@ -1357,8 +1357,6 @@ void showMainMenu()
 	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
 
 	system("color 6");
-
-	char key;
 	
 	while (!isDone)
 	{
@@ -1366,8 +1364,8 @@ void showMainMenu()
 		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
 		if (isEvent(Events::One)) {
-			std::cin >> key;
-			if (key == '1') {
+
+			if (isEvent(Events::One)) {
 				isEnd = false;
 			}
 			howTo();
