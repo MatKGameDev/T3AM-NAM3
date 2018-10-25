@@ -108,11 +108,21 @@ bool arr[64] = { 0 };
 
 int main()
 {
-	srand(time(NULL));
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 	initializeBoard();
 
+	
 	playGame(true);
+	//highlightValidMoves(arr, 3, 1);
+
+	/*for (int i = 0; i < 8; i++)
+	{
+		std::cout << "\n";
+		for (int j = 0; j < 8; j++)
+		{ 
+			std::cout << arr[i * 8 + j];
+		}
+	}*/
 
 	std::cout << "\n\n";
 	system("pause");
@@ -183,8 +193,8 @@ void drawBoard(bool *validMove)
 	//leave 1 block space in every direction around the pieces
 	//uses chessBoard[x][y][char in the string to be accessed] to get the letter that represents the chess piece
 
-	std::cout << "\n" << "      A1    B2    C3    D4    E5    F6    G7    H8\n";
-	for (int i = 0; i < 33; i++)
+	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
+	for (int i = 0; i < 33; i++)//for the size of the board
 	{
 		if (i % 4 == 0)//prints out the horiztonal border
 		{
@@ -212,8 +222,8 @@ void drawBoard(bool *validMove)
 		}
 		if (i % 4 == 2)//print out the pieces 
 		{
-			std::cout << " " << i / 4 + 1 << " *  ";
-			for (int n = 0; n < 15; n++)
+			std::cout << " "<< i / 4 + 1 << " *";//print the row identifier
+			for (int n = 0; n < 15; n++)//print out the row of pieces
 			{
 				if (n % 2 == 0)//if a piece belongs here
 				{
@@ -844,18 +854,20 @@ void playGame(bool isVersusComputer)
 			tempX = (cursorPos.x - 26) / 48; //26 is the pixels between the left side of console window and the left side of the board. 48 is the width of each square
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
-			//if the player clicked on a friendly piece (convert player number to char to compare)
-			if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
+			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
+			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
 				//set x and y coordinates for chess board start positions based on the cursor x and y positions
 				startX = tempX;
 				startY = tempY;
 
 				//update the board to show the valid movement options for the selected piece
-				//highlightValidMoves(validPieces, startX, startY);
+				highlightValidMoves(validPieces, startX, startY);
+
+				drawBoard();
 			}
-			//if chess board coordinates' start positions are set
-			else if (startX >= 0 && startY >= 0)
+			//else chess board coordinates' start positions are set
+			else
 			{
 				//set x and y coordinates for chess board end positions based on the cursor x and y positions
 				endX = tempX;
