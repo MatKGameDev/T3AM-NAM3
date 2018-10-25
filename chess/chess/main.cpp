@@ -867,7 +867,7 @@ void playGame(bool isVersusComputer)
 				drawBoard();
 			}
 			//if chess board coordinates' start positions are set
-			else if (startX > 0 && startY > 0)
+			else if (startX >= 0 && startY >= 0)
 			{
 				//set x and y coordinates for chess board end positions based on the cursor x and y positions
 				endX = tempX;
