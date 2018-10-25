@@ -321,7 +321,7 @@ void drawBoard(bool *validMove)
 					{
 						if (arr[((i / 4) * 8) + n / 2])
 						{
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+							//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
 						}
 						std::cout << chessBoard[i / 4][n / 2][0];//print out a space
 					}
