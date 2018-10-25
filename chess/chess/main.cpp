@@ -855,7 +855,7 @@ void playGame(bool isVersusComputer)
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
 			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
-			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
+			if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
 				//set x and y coordinates for chess board start positions based on the cursor x and y positions
 				startX = tempX;
@@ -866,8 +866,8 @@ void playGame(bool isVersusComputer)
 
 				drawBoard();
 			}
-			//else chess board coordinates' start positions are set
-			else
+			//if chess board coordinates' start positions are set
+			else if (startX > 0 && startY > 0)
 			{
 				//set x and y coordinates for chess board end positions based on the cursor x and y positions
 				endX = tempX;
