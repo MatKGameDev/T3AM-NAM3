@@ -25,9 +25,7 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
-#include "Events.h"
 #include <regex>
-#include <conio.h>
 #include <cwchar>
 #include <cstdlib>
 
@@ -43,7 +41,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard(bool *validMoves);
+void drawBoard(bool validMoves[64]);
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -68,10 +66,6 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //isValidDiagonalMove function prototype
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
-
-//isEvent function prototype
-//returns true or false depending on if the parameter is a valid event or not
-bool isEvent(unsigned char event);
 
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
@@ -175,7 +169,7 @@ void initializeBoard()
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard(bool *validMoves)
+void drawBoard(bool validMoves[64])
 {
 	system("cls"); //clear the screen
 
@@ -315,7 +309,8 @@ void howTo()
 			std::cout << "forwards on their first turn, and otherwise can move\n";
 			std::cout << "either one space forward to an empty space, or diagonally\n";
 			std::cout << "forwards one space, but only to capture another piece.\n";
-			std::cout << "Pawns may also become queens by reaching the enemy team's first row.";
+			std::cout << "Pawns may also become queens by reaching the enemy team's\n";
+			std::cout << "row.";
 		}
 		else if (response == "3")
 		{
@@ -326,7 +321,8 @@ void howTo()
 		else if (response == "4")
 		{
 			std::cout << "Knights, represented by an N, can move two spaces \n";
-			std::cout << "vertically or horizontally and one space perpendicular to that.";
+			std::cout << "vertically or horizontally and one space perpendicular\n";
+			std::cout << "to that.";
 		}
 		else if (response == "5")
 		{
@@ -379,7 +375,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			showMainMenu();
+			break;
 		}
 		else
 		{
@@ -390,6 +386,8 @@ void howTo()
 
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
+
+	showMainMenu();
 }
 
 //getPieceName function
@@ -795,20 +793,13 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
-//isEvent function
-//checks if a valid key was pressed
-bool isEvent(unsigned char event)
-{
-	return GetAsyncKeyState(event);
-}
-
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
 {
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
+	MoveWindow(console, 600, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
@@ -845,7 +836,7 @@ void playGame(bool isVersusComputer)
 		ScreenToClient(GetConsoleWindow(), &cursorPos);
 
 		//if a spot on the chess board was clicked
-		if (isEvent(Events::Mouse_Right))
+		if (GetAsyncKeyState(VK_RBUTTON))
 		{
 			//store the x and y coordinates of the position on the chess board that was clicked
 			//convert the x and y from pixles to coordinates, using the width as x and height as y of each square
@@ -937,7 +928,7 @@ void playGame(bool isVersusComputer)
 				}
 			}
 
-			Sleep(100); //pause for 100ms (run at 10fps)
+			Sleep(50); //pause for 50ms (run at 20fps)
 		}
 	}
 }
@@ -1024,7 +1015,7 @@ void performComputerTurn(std::string &previousTurnAction)
 			else
 			{
 				//loop 80 times checking for a valid move
-				for (int j = 0; j < 99; j++)
+				for (int j = 0; j < 80; j++)
 				{
 					//set a random x and y index between 0 and 7
 					tempEndXIndex = rand() % 8;
@@ -1111,7 +1102,7 @@ void showMainMenu()
 
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 100, 0, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
+	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
 
 	//display "MAIN MENU"
 	std::cout.width(89);
@@ -1156,7 +1147,7 @@ void showMainMenu()
 	std::cout << "Enter one of the following options:\n\n\n";
 	std::cout.width(90);
 	std::cout << "|| [1] How To Play || \n\n\n" << std::endl;
-	std::cout.width(94);
+	std::cout.width(93);
 	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
 	std::cout.width(94);
 	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
@@ -1179,19 +1170,24 @@ void showMainMenu()
 
 	while (!isDone)
 	{
+		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
+		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
-		if (isEvent(Events::One))
+		if (GetAsyncKeyState('1') & 0x8000)
 			howTo();
 		//check for 2 (player vs player)
-		else if (isEvent(Events::Two))
+		else if (GetAsyncKeyState('2') & 0x8000)
 			playGame();
+
 		//check for 3 (player vs computer)
-		else if (isEvent(Events::Three))
+		else if (GetAsyncKeyState('3') & 0x8000)
 			playGame(true);
+
 		//check for 4 (player wants to exit)
-		else if (isEvent(Events::Four))
+		else if (GetAsyncKeyState('4') & 0x8000)
 			isDone = true;
 
-		Sleep(100);
+		else
+			Sleep(50);
 	}
 }
