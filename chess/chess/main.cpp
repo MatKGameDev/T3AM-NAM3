@@ -445,125 +445,129 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
-	//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
-	if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
+	//make sure start and end coordinates are in valid range
+	if (startX > -1 && startX < 8 && startY > -1 && startY < 8 && destinationX > -1 && destinationX < 8 && destinationY > -1 && destinationY < 8)
 	{
-		//check for pawn
-		if (pieceType == 'P')
+		//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
+		if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
 		{
-			//check if pawn belongs to player 2
-			if (chessBoard[startY][startX][1] == '2')
+			//check for pawn
+			if (pieceType == 'P')
 			{
-				//if the destination is empty
-				if (chessBoard[destinationY][destinationX] == "")
+				//check if pawn belongs to player 2
+				if (chessBoard[startY][startX][1] == '2')
 				{
-					//check for moving straight down 1 square
-					if (destinationY == startY + 1 && destinationX == startX)
+					//if the destination is empty
+					if (chessBoard[destinationY][destinationX] == "")
 					{
-						returnValue = true; //valid movement
-					}
-					//check for moving straight down 2 squares
-					else if (destinationY == startY + 2 && destinationX == startX)
-					{
-						//ensure pawn is at the spawn location (row 2 aka index 1), and that there are no pieces on the square that's being passed along the way
-						if (startY == 1 && chessBoard[destinationY - 1][destinationX] == "")
+						//check for moving straight down 1 square
+						if (destinationY == startY + 1 && destinationX == startX)
 						{
 							returnValue = true; //valid movement
 						}
+						//check for moving straight down 2 squares
+						else if (destinationY == startY + 2 && destinationX == startX)
+						{
+							//ensure pawn is at the spawn location (row 2 aka index 1), and that there are no pieces on the square that's being passed along the way
+							if (startY == 1 && chessBoard[destinationY - 1][destinationX] == "")
+							{
+								returnValue = true; //valid movement
+							}
+						}
+					}
+					else //destination is not empty (there's a piece there)
+					{
+						//check for diagonal attack on another piece, either down and to the left one square or down and to the right one square
+						if (destinationY == startY + 1 && destinationX == startX - 1 || destinationY == startY + 1 && destinationX == startX + 1)
+						{
+							//check if there's an enemy piece there (player 1's piece)
+							if (chessBoard[destinationY][destinationX][1] == '1')
+							{
+								returnValue = true; //valid movement
+							}
+						}
 					}
 				}
-				else //destination is not empty (there's a piece there)
+
+				else //pawn belongs to player 1
 				{
-					//check for diagonal attack on another piece, either down and to the left one square or down and to the right one square
-					if (destinationY == startY + 1 && destinationX == startX - 1 || destinationY == startY + 1 && destinationX == startX + 1)
+					//if the destination is empty
+					if (chessBoard[destinationY][destinationX] == "")
 					{
-						//check if there's an enemy piece there (player 1's piece)
-						if (chessBoard[destinationY][destinationX][1] == '1')
+						//check for moving straight up 1 square
+						if (destinationY == startY - 1 && destinationX == startX)
 						{
 							returnValue = true; //valid movement
+						}
+						//check for moving straight up 2 squares
+						else if (destinationY == startY - 2 && destinationX == startX)
+						{
+							//ensure pawn is at the spawn location (row 7 aka index 6, and that there are no pieces on the square that's being passed along the way
+							if (startY == 6 && chessBoard[destinationY + 1][destinationX] == "")
+							{
+								returnValue = true; //valid movement
+							}
+						}
+					}
+					else //destination is not empty (there's a piece there)
+					{
+						//check for diagonal attack on another piece, either up and to the left one square or up and to the right one square
+						if (destinationY == startY - 1 && destinationX == startX - 1 || destinationY == startY - 1 && destinationX == startX + 1)
+						{
+							//check if there's an enemy piece there (player 2's piece)
+							if (chessBoard[destinationY][destinationX][1] == '2')
+							{
+								returnValue = true; //valid movement
+							}
 						}
 					}
 				}
 			}
 
-			else //pawn belongs to player 1
+			//check for rook
+			else if (pieceType == 'R')
 			{
-				//if the destination is empty
-				if (chessBoard[destinationY][destinationX] == "")
-				{
-					//check for moving straight up 1 square
-					if (destinationY == startY - 1 && destinationX == startX)
-					{
-						returnValue = true; //valid movement
-					}
-					//check for moving straight up 2 squares
-					else if (destinationY == startY - 2 && destinationX == startX)
-					{
-						//ensure pawn is at the spawn location (row 7 aka index 6, and that there are no pieces on the square that's being passed along the way
-						if (startY == 6 && chessBoard[destinationY + 1][destinationX] == "")
-						{
-							returnValue = true; //valid movement
-						}
-					}
-				}
-				else //destination is not empty (there's a piece there)
-				{
-					//check for diagonal attack on another piece, either up and to the left one square or up and to the right one square
-					if (destinationY == startY - 1 && destinationX == startX - 1 || destinationY == startY - 1 && destinationX == startX + 1)
-					{
-						//check if there's an enemy piece there (player 2's piece)
-						if (chessBoard[destinationY][destinationX][1] == '2')
-						{
-							returnValue = true; //valid movement
-						}
-					}
-				}
+				//check if the move is valid horizontally/vertically
+				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
 			}
-		}
 
-		//check for rook
-		else if (pieceType == 'R')
-		{
-			//check if the move is valid horizontally/vertically
-			if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
+			//check for knight
+			else if (pieceType == 'N')
+			{
+				//check for moving up 2 left 1, up 1 left 2, up 2 right 1, or up 1 right 2
+				if (startX - 2 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY - 2 == destinationY || startX - 2 == destinationX && startY + 1 == destinationY || startX - 1 == destinationX && startY + 2 == destinationY)
+					returnValue = true;
+				//check for moving down 2 left 1, down 1 left 2, down 2 right 1, or down 1 right 2
+				else if (startX + 2 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 2 == destinationY || startX + 2 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 2 == destinationY)
+					returnValue = true;
+			}
 
-		//check for knight
-		else if (pieceType == 'N')
-		{
-			//check for moving up 2 left 1, up 1 left 2, up 2 right 1, or up 1 right 2
-			if (startX - 2 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY - 2 == destinationY || startX - 2 == destinationX && startY + 1 == destinationY || startX - 1 == destinationX && startY + 2 == destinationY)
-				returnValue = true;
-			//check for moving down 2 left 1, down 1 left 2, down 2 right 1, or down 1 right 2
-			else if (startX + 2 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 2 == destinationY || startX + 2 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 2 == destinationY)
-				returnValue = true;
-		}
+			//check for bishop
+			else if (pieceType == 'B')
+			{
+				//check if the move is valid diagonally
+				if (isValidDiagonalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
+			}
 
-		//check for bishop
-		else if (pieceType == 'B')
-		{
-			//check if the move is valid diagonally
-			if (isValidDiagonalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
+			//check for queen
+			else if (pieceType == 'Q')
+			{
+				//check if the move is valid either horizontally/vertically OR diagonally
+				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY) || isValidDiagonalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
+			}
 
-		//check for queen
-		else if (pieceType == 'Q')
-		{
-			//check if the move is valid either horizontally/vertically OR diagonally
-			if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY) || isValidDiagonalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
-
-		else //piece is a king
-		{
-			//check for left, right, up, or down movement
-			if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
-				returnValue = true;
-			//check for diagonal up to the left or right and diagonal down to the left or right
-			else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
-				returnValue = true;
+			else //piece is a king
+			{
+				//check for left, right, up, or down movement
+				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
+					returnValue = true;
+				//check for diagonal up to the left or right and diagonal down to the left or right
+				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
+					returnValue = true;
+			}
 		}
 	}
 
