@@ -13,20 +13,19 @@
 * TODO (Incomplete list)
 * Basic TODOs:
 *  Add right click to move in the how-to
-*  Main menu screen
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Time limit for turns
 *  Sound FX/Music
 */
 
 #include <iostream>
 #include <string>
 #include <Windows.h>
-#include "Events.h"
 #include <regex>
+#include <cwchar>
+#include <cstdlib>
 
 // conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
 #undef max
@@ -40,7 +39,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard();
+void drawBoard(bool validMoves[64]);
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -65,10 +64,6 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //isValidDiagonalMove function prototype
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
-
-//isEvent function prototype
-//returns true or false depending on if the parameter is a valid event or not
-bool isEvent(unsigned char event);
 
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
@@ -104,26 +99,16 @@ void highlightValidMoves(bool *validSquares, int startX, int startY);
 //music taken from royalty free website: www.purple-planet.com/gentle
 void toggleMusic();
 
+//showMainMenu function prototype
+//displays the main menu
+void showMainMenu();
+
 int main()
 {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
-	initializeBoard();
+	srand(time(NULL)); //seed the random number generator
 
-	bool arr[64] = { 0 };
+	showMainMenu(); //open the main menu
 
-	highlightValidMoves(arr, 3, 1);
-
-	for (int i = 0; i < 8; i++)
-	{
-		std::cout << "\n";
-		for (int j = 0; j < 8; j++)
-		{ 
-			std::cout << arr[i * 8 + j];
-		}
-	}
-
-	std::cout << "\n\n";
-	system("pause");
 	return 0;
 }
 
@@ -182,7 +167,7 @@ void initializeBoard()
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard()
+void drawBoard(bool validMoves[64])
 {
 	system("cls"); //clear the screen
 
@@ -200,15 +185,32 @@ void drawBoard()
 		}
 		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
 		{
-			std::cout << "   *     *     *     *     *     *     *     *     *\n";
+			std::cout << "   *";
+				//<<"     *     *     *     *     *     *     *     *\n";
+			for (int n = 0;n < 8;n++)
+			{
+				if (validMoves[((i / 4) * 8) + n])
+				{
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+				}
+				std::cout << "     ";
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+				std::cout << "*";
+			}
+			std::cout << std::endl;
 		}
 		if (i % 4 == 2)//print out the pieces 
 		{
-			std::cout << " "<< i / 4 + 1 << " *  ";//print the row identifier
+			std::cout << " "<< i / 4 + 1 << " *";//print the row identifier
 			for (int n = 0; n < 15; n++)//print out the row of pieces
 			{
 				if (n % 2 == 0)//if a piece belongs here
 				{
+					if (validMoves[((i / 4) * 8) + n / 2])
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
 					if (chessBoard[i / 4][n / 2] != "")//validation to make sure the piece exists
 					{
 						//check if piece belongs to player 1
@@ -221,20 +223,40 @@ void drawBoard()
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 244);//set the text red
 						}
+						if (validMoves[((i / 4) * 8) + n/2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
 						std::cout << chessBoard[i / 4][n / 2][0];//print out the piece type
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);//reset the colour of the text
 					}
+					
 					else//if empty
 					{
+						if (validMoves[((i / 4) * 8) + n / 2])
+						{
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+						}
 						std::cout << chessBoard[i / 4][n / 2][0];//print out a space
 					}
 				}
 				else
 				{
-					std::cout << "  *  ";//print a piece of the vertical border
+					std::cout << "  ";//print a piece of the vertical border
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
+				}
+				if (n == 14)
+				{
+					if (validMoves[((i / 4) * 8) + n / 2])
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 224);
+					}
+					std::cout << "  ";
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
+					std::cout << "*";
 				}
 			}
-			std::cout<< "  *\n";//the end of the row
+			std::cout << std::endl;//the end of the row
 		}
 	}
 }
@@ -249,8 +271,13 @@ void howTo()
 	{
 		system("cls"); //clear screen every time it loops
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n";
-		std::cout << "1. Terminology\n2. Pawns\n3. Rooks\n4. Knights\n5. Bishops\n6. Queen\n7. King\n8. General rules\n9. Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+		HWND console = GetConsoleWindow();
+		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
+
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+		std::cout << "\n\nEnter your selection: ";
 		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
@@ -280,7 +307,8 @@ void howTo()
 			std::cout << "forwards on their first turn, and otherwise can move\n";
 			std::cout << "either one space forward to an empty space, or diagonally\n";
 			std::cout << "forwards one space, but only to capture another piece.\n";
-			std::cout << "Pawns may also become queens by reaching the enemy team's first row.";
+			std::cout << "Pawns may also become queens by reaching the enemy team's\n";
+			std::cout << "row.";
 		}
 		else if (response == "3")
 		{
@@ -291,7 +319,8 @@ void howTo()
 		else if (response == "4")
 		{
 			std::cout << "Knights, represented by an N, can move two spaces \n";
-			std::cout << "vertically or horizontally and one space perpendicular to that.";
+			std::cout << "vertically or horizontally and one space perpendicular\n";
+			std::cout << "to that.";
 		}
 		else if (response == "5")
 		{
@@ -344,7 +373,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break; //break the loop if the user enters 11
+			break;
 		}
 		else
 		{
@@ -355,6 +384,8 @@ void howTo()
 
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
+
+	showMainMenu();
 }
 
 //getPieceName function
@@ -760,30 +791,24 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
-//isEvent function
-//checks if a valid key was pressed
-bool isEvent(unsigned char event)
-{
-	return GetAsyncKeyState(event);
-}
-
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
 {
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console window
+	MoveWindow(console, 600, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
 
-	initializeBoard(); //reset the chess board
-	drawBoard();       //display the chess board to the user
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
-	std::string userInputStart; //user's input for the start location of the piece
-	std::string userInputEnd;   //user's input for the desired end location of the piece
-	int playerNumber = 1;       //an int that is either 1 or 2, which determines which player's move it is
-	bool validPieces[64];       //an array where each true value determines a spot that a selected piece can be moved
+	std::string userInputStart;      //user's input for the start location of the piece
+	std::string userInputEnd;        //user's input for the desired end location of the piece
+	int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
+	bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
 	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
+	initializeBoard();     //reset the chess board
+	drawBoard(validMoves); //display the chess board to the user
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -794,7 +819,12 @@ void playGame(bool isVersusComputer)
 	int endY;
 
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-	std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+
+	//display whos turn it is
+	if (isVersusComputer)
+		std::cout << " Your turn.";
+	else
+		std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
 
 	while (1)
 	{
@@ -804,7 +834,7 @@ void playGame(bool isVersusComputer)
 		ScreenToClient(GetConsoleWindow(), &cursorPos);
 
 		//if a spot on the chess board was clicked
-		if (isEvent(Events::Mouse_Right))
+		if (GetAsyncKeyState(VK_RBUTTON))
 		{
 			//store the x and y coordinates of the position on the chess board that was clicked
 			//convert the x and y from pixles to coordinates, using the width as x and height as y of each square
@@ -812,19 +842,29 @@ void playGame(bool isVersusComputer)
 			tempY = (cursorPos.y - 46) / 63; //48 is the pixels between the top of the console window and the top of the board. 63 is the height of each square
 
 			//if chess board coordinates' start positions arent set OR the player clicked on a friendly piece (convert player number to char to compare)
-			if (startX < 0 && startY < 0 || chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
+			if (chessBoard[tempY][tempX] != "" && chessBoard[tempY][tempX][1] == ('0' + playerNumber))
 			{
 				//set x and y coordinates for chess board start positions based on the cursor x and y positions
 				startX = tempX;
 				startY = tempY;
 
 				//update the board to show the valid movement options for the selected piece
-				highlightValidMoves(validPieces, startX, startY);
+				highlightValidMoves(validMoves, startX, startY);
 
-				drawBoard();
+				drawBoard(validMoves);
+				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+   			    //if the player is against the computer
+				if (isVersusComputer)
+				{
+					std::cout << " Your turn.";
+				}
+				else //player vs player
+				{
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
+				}
 			}
-			//else chess board coordinates' start positions are set
-			else
+			//if chess board coordinates' start positions are set
+			else if (startX >= 0 && startY >= 0)
 			{
 				//set x and y coordinates for chess board end positions based on the cursor x and y positions
 				endX = tempX;
@@ -834,9 +874,15 @@ void playGame(bool isVersusComputer)
 				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
 					//update the previous turn's action
-					previousTurnAction = " Player " + std::to_string(playerNumber) + " moved " + getPieceName(chessBoard[startY][startX][0]) +
+					if (isVersusComputer)
+						previousTurnAction = " You";
+					else
+						previousTurnAction = " Player " + std::to_string(playerNumber);
+
+					previousTurnAction += " moved " + getPieceName(chessBoard[startY][startX][0]) +
 						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
 						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
+
 					//check if end location has an enemy piece
 					if (chessBoard[endY][endX] != "")
 						previousTurnAction += "\n And took the enemy's " + getPieceName(chessBoard[endY][endX][0]);
@@ -845,7 +891,11 @@ void playGame(bool isVersusComputer)
 					//move the piece
 					movePiece(startX, startY, endX, endY);
 
-					drawBoard(); //update board
+					//reset all squares to invalid movement options till next turn
+					for (int i = 0; i < 64; i++)
+						validMoves[i] = false;
+
+					drawBoard(validMoves); //update board
 
 					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 
@@ -855,7 +905,7 @@ void playGame(bool isVersusComputer)
 						std::cout << " Computer player's turn.";
 						Sleep(1500);
 						performComputerTurn(previousTurnAction); //determine the computer player's action
-						drawBoard(); //update board
+						drawBoard(validMoves); //update board
 						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 						std::cout << " Your turn."; //tell the user it's their turn
 					}
@@ -876,7 +926,7 @@ void playGame(bool isVersusComputer)
 				}
 			}
 
-			Sleep(100); //pause for 100ms (run at 10fps)
+			Sleep(50); //pause for 50ms (run at 20fps)
 		}
 	}
 }
@@ -885,7 +935,7 @@ void playGame(bool isVersusComputer)
 //determines an action for the computer to perform on its turn
 void performComputerTurn(std::string &previousTurnAction)
 {
-	const int MAXIMUM_CHECKS = 7;
+	const int MAXIMUM_CHECKS = 20;
 
 	bool validMoveSelected;  //loop condition for the entire computer's turn
 	bool validPieceSelected; //loop condition for selecting a starting position for a piece
@@ -930,6 +980,7 @@ void performComputerTurn(std::string &previousTurnAction)
 					endXIndex = startXIndex - 1;
 					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
+					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//check if it can attack up and to the right
 				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
@@ -937,6 +988,7 @@ void performComputerTurn(std::string &previousTurnAction)
 					endXIndex = startXIndex + 1;
 					endYIndex = startYIndex - 1;
 					validMoveSelected = true;
+					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//can't attack, find a spot to move it
 				else
@@ -1038,4 +1090,102 @@ void toggleMusic()
 {
 	//mciSendString("open \"*.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
 	//mciSendString("play mp3 repeat", NULL, 0, NULL);
+}
+
+//showMainMenu function prototype
+//displays the main menu
+void showMainMenu()
+{
+	bool isDone = false;
+
+	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
+	HWND console = GetConsoleWindow();
+	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
+
+	//display "MAIN MENU"
+	std::cout.width(89);
+	std::cout << "__    _           _             __   _ " << std::endl;
+	std::cout.width(90);
+	std::cout << "| \\  / |         (_)           |  \\ / | " << std::endl;
+	std::cout.width(112);
+	std::cout << "| \\  / |   __ _   _   _ __     | \\  / |   ___   _ __    _   _ " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |\\/| |  / _` | | | | '_ \\    | |\\/| |  / _ \\ | '_ \\  | | | | " << std::endl;
+	std::cout.width(113);
+	std::cout << "| |  | | | (_| | | | | | | |   | |  | | |  __/ | | | | | |_| | " << std::endl;
+	std::cout.width(116);
+	std::cout << "|_|  |_| \\__, _| |_| |_| |_|   |_|  |_| \\___|  |_| |_| \\__, _| \n\n\n" << std::endl;
+
+	//display "CHESS"
+	std::cout.width(130);
+	std::cout << ".----------------.  .----------------.  .----------------.  .----------------.  .----------------." << std::endl;
+	std::cout.width(130);
+	std::cout << "| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |     ______   | || |  ____  ____  | || |  _________   | || |    _______   | || |    _______   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   .' ___  |  | || | |_   ||   _| | || | |_   ___  |  | || |   /  ___  |  | || |   /  ___  |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  / .'   \\_|  | || |   | |__| |   | || |   | |_  \\_|  | || |  |  (__ \\_|  | || |  |  (__ \\_|  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  | |         | || |   |  __  |   | || |   |  _ | _   | || |   '.___`-.   | || |   '.___`-.   | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |  \\ `.___.'\\  | || |  _| |  | |_  | || |  _| |___/ |  | || |  |`\\____) |  | || |  |`\\____) |  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |   `._____.'  | || | |____||____| | || | |_________|  | || |  |_______.'  | || |  |_______.'  | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| |              | || |              | || |              | || |              | || |              | |" << std::endl;
+	std::cout.width(130);
+	std::cout << "| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |" << std::endl;
+	std::cout.width(132);
+	std::cout << "'----------------'  '----------------'  '----------------'  '----------------'  '----------------' \n\n" << std::endl;
+
+	//display all menu options
+	std::cout.width(98);
+	std::cout << "Enter one of the following options:\n\n\n";
+	std::cout.width(90);
+	std::cout << "|| [1] How To Play || \n\n\n" << std::endl;
+	std::cout.width(93);
+	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
+	std::cout.width(94);
+	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
+	std::cout.width(90);
+	std::cout << "|| [4] Quit || \n\n\n\n\n" << std::endl;
+
+	//display our names :D
+	std::cout.width(130);
+	std::cout << "Hersh Sheth, 100701911" << std::endl;
+	std::cout.width(130);
+	std::cout << "Evyn Brouwer, 100702629" << std::endl;
+	std::cout.width(130);
+	std::cout << "Sherry Yang, 100637677" << std::endl;
+	std::cout.width(130);
+	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
+	std::cout.width(130);
+	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
+
+	system("color 6");
+
+	while (!isDone)
+	{
+		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
+		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
+		//check for 1 (how to play)
+		if (GetAsyncKeyState('1') & 0x8000)
+			howTo();
+		//check for 2 (player vs player)
+		else if (GetAsyncKeyState('2') & 0x8000)
+			playGame();
+
+		//check for 3 (player vs computer)
+		else if (GetAsyncKeyState('3') & 0x8000)
+			playGame(true);
+
+		//check for 4 (player wants to exit)
+		else if (GetAsyncKeyState('4') & 0x8000)
+			isDone = true;
+
+		else
+			Sleep(50);
+	}
 }
