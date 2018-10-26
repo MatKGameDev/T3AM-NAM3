@@ -13,12 +13,10 @@
 * TODO (Incomplete list)
 * Basic TODOs:
 *  Add right click to move in the how-to
-*  Main menu screen
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Time limit for turns
 *  Sound FX/Music
 */
 
