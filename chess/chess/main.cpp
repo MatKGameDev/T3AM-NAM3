@@ -119,24 +119,24 @@ void initializeBoard()
 	//######## STRING FORMAT FOR GAME PIECES ########
 	//2 chars: [Char signifying piece's type] [Player number that owns the piece]
 
-	//player 1 pieces
-	chessBoard[0][0] = "R1";
-	chessBoard[0][1] = "N1";
-	chessBoard[0][2] = "B1";
-	chessBoard[0][3] = "Q1";
-	chessBoard[0][4] = "K1";
-	chessBoard[0][5] = "B1";
-	chessBoard[0][6] = "N1";
-	chessBoard[0][7] = "R1";
-	//player 1 pawns
-	chessBoard[1][0] = "P1";
-	chessBoard[1][1] = "P1";
-	chessBoard[1][2] = "P1";
-	chessBoard[1][3] = "P1";
-	chessBoard[1][4] = "P1";
-	chessBoard[1][5] = "P1";
-	chessBoard[1][6] = "P1";
-	chessBoard[1][7] = "P1";
+	//player 2 pieces
+	chessBoard[0][0] = "R2";
+	chessBoard[0][1] = "N2";
+	chessBoard[0][2] = "B2";
+	chessBoard[0][3] = "Q2";
+	chessBoard[0][4] = "K2";
+	chessBoard[0][5] = "B2";
+	chessBoard[0][6] = "N2";
+	chessBoard[0][7] = "R2";
+	//player 2 pawns
+	chessBoard[1][0] = "P2";
+	chessBoard[1][1] = "P2";
+	chessBoard[1][2] = "P2";
+	chessBoard[1][3] = "P2";
+	chessBoard[1][4] = "P2";
+	chessBoard[1][5] = "P2";
+	chessBoard[1][6] = "P2";
+	chessBoard[1][7] = "P2";
 
 	//reset all pieces inbetween (row index 2 to row index 5)
 	for (int i = 2; i <= 5; i++)
@@ -145,24 +145,24 @@ void initializeBoard()
 			chessBoard[i][j] = "";
 	}
 
-	//player 2 pawns
-	chessBoard[6][0] = "P2";
-	chessBoard[6][1] = "P2";
-	chessBoard[6][2] = "P2";
-	chessBoard[6][3] = "P2";
-	chessBoard[6][4] = "P2";
-	chessBoard[6][5] = "P2";
-	chessBoard[6][6] = "P2";
-	chessBoard[6][7] = "P2";
-	//player 2 pieces
-	chessBoard[7][0] = "R2";
-	chessBoard[7][1] = "N2";
-	chessBoard[7][2] = "B2";
-	chessBoard[7][3] = "Q2";
-	chessBoard[7][4] = "K2";
-	chessBoard[7][5] = "B2";
-	chessBoard[7][6] = "N2";
-	chessBoard[7][7] = "R2";
+	//player 1 pawns
+	chessBoard[6][0] = "P1";
+	chessBoard[6][1] = "P1";
+	chessBoard[6][2] = "P1";
+	chessBoard[6][3] = "P1";
+	chessBoard[6][4] = "P1";
+	chessBoard[6][5] = "P1";
+	chessBoard[6][6] = "P1";
+	chessBoard[6][7] = "P1";
+	//player 1 pieces	 
+	chessBoard[7][0] = "R1";
+	chessBoard[7][1] = "N1";
+	chessBoard[7][2] = "B1";
+	chessBoard[7][3] = "Q1";
+	chessBoard[7][4] = "K1";
+	chessBoard[7][5] = "B1";
+	chessBoard[7][6] = "N1";
+	chessBoard[7][7] = "R1";
 }
 
 //drawBoard function
@@ -451,8 +451,8 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 		//check for pawn
 		if (pieceType == 'P')
 		{
-			//check if pawn belongs to player 1
-			if (chessBoard[startY][startX][1] == '1')
+			//check if pawn belongs to player 2
+			if (chessBoard[startY][startX][1] == '2')
 			{
 				//if the destination is empty
 				if (chessBoard[destinationY][destinationX] == "")
@@ -477,19 +477,16 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 					//check for diagonal attack on another piece, either down and to the left one square or down and to the right one square
 					if (destinationY == startY + 1 && destinationX == startX - 1 || destinationY == startY + 1 && destinationX == startX + 1)
 					{
-						//check if there's an enemy piece there (player 2's piece)
-						if (chessBoard[destinationY][destinationX][1] == '2')
+						//check if there's an enemy piece there (player 1's piece)
+						if (chessBoard[destinationY][destinationX][1] == '1')
 						{
 							returnValue = true; //valid movement
 						}
 					}
 				}
-
-				//check if pawn had a valid movement and reached the end of the enemy's board
-				if (returnValue == true && destinationY == 7)
-					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
-			else //pawn belongs to player 2
+
+			else //pawn belongs to player 1
 			{
 				//if the destination is empty
 				if (chessBoard[destinationY][destinationX] == "")
@@ -514,17 +511,13 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 					//check for diagonal attack on another piece, either up and to the left one square or up and to the right one square
 					if (destinationY == startY - 1 && destinationX == startX - 1 || destinationY == startY - 1 && destinationX == startX + 1)
 					{
-						//check if there's an enemy piece there (player 1's piece)
-						if (chessBoard[destinationY][destinationX][1] == '1')
+						//check if there's an enemy piece there (player 2's piece)
+						if (chessBoard[destinationY][destinationX][1] == '2')
 						{
 							returnValue = true; //valid movement
 						}
 					}
 				}
-
-				//check if pawn had a valid movement and reached the end of the enemy's board
-				if (returnValue == true && destinationY == 0)
-					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
 			}
 		}
 
@@ -974,37 +967,37 @@ void performComputerTurn(std::string &previousTurnAction)
 			//if a pawn was selected
 			if (chessBoard[startYIndex][startXIndex][0] == 'P')
 			{
-				//check if it can attack up and to the left
-				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
+				//check if it can attack down and to the left
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1))
 				{
 					endXIndex = startXIndex - 1;
-					endYIndex = startYIndex - 1;
+					endYIndex = startYIndex + 1;
 					validMoveSelected = true;
 					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
-				//check if it can attack up and to the right
-				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
+				//check if it can attack down and to the right
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1))
 				{
 					endXIndex = startXIndex + 1;
-					endYIndex = startYIndex - 1;
+					endYIndex = startYIndex + 1;
 					validMoveSelected = true;
 					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//can't attack, find a spot to move it
 				else
 				{
-					//try to move it 2 spaces up
-					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
+					//try to move it 2 spaces down
+					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 2))
 					{
 						endXIndex = startXIndex;
-						endYIndex = startYIndex - 2;
+						endYIndex = startYIndex + 2;
 						validMoveSelected = true;
 					}
-					//try to move it 1 space up
-					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
+					//try to move it 1 space down
+					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 1))
 					{
 						endXIndex = startXIndex;
-						endYIndex = startYIndex - 1;
+						endYIndex = startYIndex + 1;
 						validMoveSelected = true;
 					}
 				}
@@ -1063,6 +1056,14 @@ void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
 	chessBoard[startY][startX] = ""; //clear the old start position
+
+	//check if pawn reached the end of the enemy's board
+	//check for player 1's pawn
+	if (destinationY == 0 && chessBoard[destinationY][destinationX][0] == 'P' && chessBoard[destinationY][destinationX][1] == '1')
+		chessBoard[destinationY][destinationX][0] = 'Q'; //change pawn to a queen
+	//check for player 2's pawn
+	else if (destinationY == 7 && chessBoard[destinationY][destinationX][0] == 'P' && chessBoard[destinationY][destinationX][1] == '2')
+		chessBoard[destinationY][destinationX][0] = 'Q'; //change pawn to a queen
 }
 
 //highlightValidMoves function
