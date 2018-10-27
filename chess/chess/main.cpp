@@ -13,21 +13,17 @@
 * TODO (Incomplete list)
 * Basic TODOs:
 *  Add right click to move in the how-to
-*  Main menu screen
 *  Implement checks for check/stalemate/checkmate
 *  Castling
 *
 * If time permits (Advanced TODOs):
-*  Time limit for turns
 *  Sound FX/Music
 */
 
 #include <iostream>
 #include <string>
 #include <Windows.h>
-#include "Events.h"
 #include <regex>
-#include <conio.h>
 #include <cwchar>
 #include <cstdlib>
 
@@ -43,7 +39,7 @@ void initializeBoard();
 
 //drawBoard function prototype
 //draws out a neatly formatted chess board with pieces dynamically placed
-void drawBoard(bool *validMoves);
+void drawBoard(bool validMoves[64]);
 
 //howTo function prototype
 //displays the menu for a guide on the rules of the game and the pieces
@@ -69,9 +65,21 @@ bool isValidHorizontalOrVerticalMove(int startX, int startY, int destinationX, i
 //determines if a piece can be moved to the destination diagonally (includes collision detection)
 bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinationY);
 
-//isEvent function prototype
-//returns true or false depending on if the parameter is a valid event or not
-bool isEvent(unsigned char event);
+//setKingCoordinates function prototype
+//sets the x and y values for the king's position
+void setKingCoordinates(char playerNum, int &kingX, int &kingY);
+
+//isInCheck function prototype
+//determines if the player's king is in check
+bool isInCheck(char playerNum);
+
+//isCheckmate function prototype
+//checks if a player has been checkmate'd (or however you say that)
+bool isCheckmate(char playerNum);
+
+//canSaveKingMove function prototype
+//checks if a player's king can move or be saved
+bool canSaveKingMove(char playerNum);
 
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
@@ -127,24 +135,24 @@ void initializeBoard()
 	//######## STRING FORMAT FOR GAME PIECES ########
 	//2 chars: [Char signifying piece's type] [Player number that owns the piece]
 
-	//player 1 pieces
-	chessBoard[0][0] = "R1";
-	chessBoard[0][1] = "N1";
-	chessBoard[0][2] = "B1";
-	chessBoard[0][3] = "Q1";
-	chessBoard[0][4] = "K1";
-	chessBoard[0][5] = "B1";
-	chessBoard[0][6] = "N1";
-	chessBoard[0][7] = "R1";
-	//player 1 pawns
-	chessBoard[1][0] = "P1";
-	chessBoard[1][1] = "P1";
-	chessBoard[1][2] = "P1";
-	chessBoard[1][3] = "P1";
-	chessBoard[1][4] = "P1";
-	chessBoard[1][5] = "P1";
-	chessBoard[1][6] = "P1";
-	chessBoard[1][7] = "P1";
+	//player 2 pieces
+	chessBoard[0][0] = "R2";
+	chessBoard[0][1] = "N2";
+	chessBoard[0][2] = "B2";
+	chessBoard[0][3] = "Q2";
+	chessBoard[0][4] = "K2";
+	chessBoard[0][5] = "B2";
+	chessBoard[0][6] = "N2";
+	chessBoard[0][7] = "R2";
+	//player 2 pawns
+	chessBoard[1][0] = "P2";
+	chessBoard[1][1] = "P2";
+	chessBoard[1][2] = "P2";
+	chessBoard[1][3] = "P2";
+	chessBoard[1][4] = "P2";
+	chessBoard[1][5] = "P2";
+	chessBoard[1][6] = "P2";
+	chessBoard[1][7] = "P2";
 
 	//reset all pieces inbetween (row index 2 to row index 5)
 	for (int i = 2; i <= 5; i++)
@@ -153,29 +161,29 @@ void initializeBoard()
 			chessBoard[i][j] = "";
 	}
 
-	//player 2 pawns
-	chessBoard[6][0] = "P2";
-	chessBoard[6][1] = "P2";
-	chessBoard[6][2] = "P2";
-	chessBoard[6][3] = "P2";
-	chessBoard[6][4] = "P2";
-	chessBoard[6][5] = "P2";
-	chessBoard[6][6] = "P2";
-	chessBoard[6][7] = "P2";
-	//player 2 pieces
-	chessBoard[7][0] = "R2";
-	chessBoard[7][1] = "N2";
-	chessBoard[7][2] = "B2";
-	chessBoard[7][3] = "Q2";
-	chessBoard[7][4] = "K2";
-	chessBoard[7][5] = "B2";
-	chessBoard[7][6] = "N2";
-	chessBoard[7][7] = "R2";
+	//player 1 pawns
+	chessBoard[6][0] = "P1";
+	chessBoard[6][1] = "P1";
+	chessBoard[6][2] = "P1";
+	chessBoard[6][3] = "P1";
+	chessBoard[6][4] = "P1";
+	chessBoard[6][5] = "P1";
+	chessBoard[6][6] = "P1";
+	chessBoard[6][7] = "P1";
+	//player 1 pieces	 
+	chessBoard[7][0] = "R1";
+	chessBoard[7][1] = "N1";
+	chessBoard[7][2] = "B1";
+	chessBoard[7][3] = "Q1";
+	chessBoard[7][4] = "K1";
+	chessBoard[7][5] = "B1";
+	chessBoard[7][6] = "N1";
+	chessBoard[7][7] = "R1";
 }
 
 //drawBoard function
 //outputs the boardgame with neat formatting to the console window
-void drawBoard(bool *validMoves)
+void drawBoard(bool validMoves[64])
 {
 	system("cls"); //clear the screen
 
@@ -187,11 +195,11 @@ void drawBoard(bool *validMoves)
 	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
 	for (int i = 0; i < 33; i++)//for the size of the board
 	{
-		if (i % 4 == 0)//prints out the horiztonal border
+		if (i % 4 == 0) //prints out the horiztonal border
 		{
 			std::cout << "   *************************************************\n";
 		}
-		if (i % 4 == 1 || i % 4 == 3)//print out the vertical border
+		if (i % 4 == 1 || i % 4 == 3) //print out the vertical border
 		{
 			std::cout << "   *";
 				//<<"     *     *     *     *     *     *     *     *\n";
@@ -205,7 +213,7 @@ void drawBoard(bool *validMoves)
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 				std::cout << "*";
 			}
-			std::cout << std::endl;
+			std::cout << "\n";
 		}
 		if (i % 4 == 2)//print out the pieces 
 		{
@@ -249,7 +257,7 @@ void drawBoard(bool *validMoves)
 				}
 				else
 				{
-					std::cout << "  ";//print a piece of the vertical border
+					std::cout << "  "; //print a piece of the vertical border
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 					std::cout << "*";
 				}
@@ -264,7 +272,7 @@ void drawBoard(bool *validMoves)
 					std::cout << "*";
 				}
 			}
-			std::cout << std::endl;//the end of the row
+			std::cout << "\n"; //the end of the row
 		}
 	}
 }
@@ -317,7 +325,8 @@ void howTo()
 			std::cout << "forwards on their first turn, and otherwise can move\n";
 			std::cout << "either one space forward to an empty space, or diagonally\n";
 			std::cout << "forwards one space, but only to capture another piece.\n";
-			std::cout << "Pawns may also become queens by reaching the enemy team's first row.";
+			std::cout << "Pawns may also become queens by reaching the enemy team's\n";
+			std::cout << "row.";
 		}
 		else if (response == "3")
 		{
@@ -328,7 +337,8 @@ void howTo()
 		else if (response == "4")
 		{
 			std::cout << "Knights, represented by an N, can move two spaces \n";
-			std::cout << "vertically or horizontally and one space perpendicular to that.";
+			std::cout << "vertically or horizontally and one space perpendicular\n";
+			std::cout << "to that.";
 		}
 		else if (response == "5")
 		{
@@ -381,8 +391,7 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			isEnd = true;
-			showMainMenu();
+			break;
 		}
 		else
 		{
@@ -393,6 +402,8 @@ void howTo()
 
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
+
+	showMainMenu();
 }
 
 //getPieceName function
@@ -449,136 +460,156 @@ char convertNumberToLetterCoordinate(int numberToConvert)
 //sees if a piece can be moved from (startX, startY) to (destinationX, destinationY)
 bool isValidPieceMovement(int startX, int startY, int destinationX, int destinationY)
 {
+	//if the start position isn't a piece
+	if (chessBoard[startY][startX] == "")
+		return false;
+	//if the destination is off the board
+	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0)
+		return false;
+
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
-	//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
-	if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
+	//make sure start and end coordinates are in valid range
+	if (startX > -1 && startX < 8 && startY > -1 && startY < 8 && destinationX > -1 && destinationX < 8 && destinationY > -1 && destinationY < 8)
 	{
-		//check for pawn
-		if (pieceType == 'P')
+		//make sure the destination is either empty or isn't being occupied by a friendly piece. This rule applies to ALL pieces
+		if (chessBoard[destinationY][destinationX] == "" || chessBoard[destinationY][destinationX][1] != chessBoard[startY][startX][1])
 		{
-			//check if pawn belongs to player 1
-			if (chessBoard[startY][startX][1] == '1')
+			//check for pawn
+			if (pieceType == 'P')
 			{
-				//if the destination is empty
-				if (chessBoard[destinationY][destinationX] == "")
+				//check if pawn belongs to player 2
+				if (chessBoard[startY][startX][1] == '2')
 				{
-					//check for moving straight down 1 square
-					if (destinationY == startY + 1 && destinationX == startX)
+					//if the destination is empty
+					if (chessBoard[destinationY][destinationX] == "")
 					{
-						returnValue = true; //valid movement
-					}
-					//check for moving straight down 2 squares
-					else if (destinationY == startY + 2 && destinationX == startX)
-					{
-						//ensure pawn is at the spawn location (row 2 aka index 1), and that there are no pieces on the square that's being passed along the way
-						if (startY == 1 && chessBoard[destinationY - 1][destinationX] == "")
+						//check for moving straight down 1 square
+						if (destinationY == startY + 1 && destinationX == startX)
 						{
 							returnValue = true; //valid movement
 						}
-					}
-				}
-				else //destination is not empty (there's a piece there)
-				{
-					//check for diagonal attack on another piece, either down and to the left one square or down and to the right one square
-					if (destinationY == startY + 1 && destinationX == startX - 1 || destinationY == startY + 1 && destinationX == startX + 1)
-					{
-						//check if there's an enemy piece there (player 2's piece)
-						if (chessBoard[destinationY][destinationX][1] == '2')
+						//check for moving straight down 2 squares
+						else if (destinationY == startY + 2 && destinationX == startX)
 						{
-							returnValue = true; //valid movement
+							//ensure pawn is at the spawn location (row 2 aka index 1), and that there are no pieces on the square that's being passed along the way
+							if (startY == 1 && chessBoard[destinationY - 1][destinationX] == "")
+							{
+								returnValue = true; //valid movement
+							}
+						}
+					}
+					else //destination is not empty (there's a piece there)
+					{
+						//check for diagonal attack on another piece, either down and to the left one square or down and to the right one square
+						if (destinationY == startY + 1 && destinationX == startX - 1 || destinationY == startY + 1 && destinationX == startX + 1)
+						{
+							//check if there's an enemy piece there (player 1's piece)
+							if (chessBoard[destinationY][destinationX][1] == '1')
+							{
+								returnValue = true; //valid movement
+							}
 						}
 					}
 				}
 
-				//check if pawn had a valid movement and reached the end of the enemy's board
-				if (returnValue == true && destinationY == 7)
-					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
+				else //pawn belongs to player 1
+				{
+					//if the destination is empty
+					if (chessBoard[destinationY][destinationX] == "")
+					{
+						//check for moving straight up 1 square
+						if (destinationY == startY - 1 && destinationX == startX)
+						{
+							returnValue = true; //valid movement
+						}
+						//check for moving straight up 2 squares
+						else if (destinationY == startY - 2 && destinationX == startX)
+						{
+							//ensure pawn is at the spawn location (row 7 aka index 6, and that there are no pieces on the square that's being passed along the way
+							if (startY == 6 && chessBoard[destinationY + 1][destinationX] == "")
+							{
+								returnValue = true; //valid movement
+							}
+						}
+					}
+					else //destination is not empty (there's a piece there)
+					{
+						//check for diagonal attack on another piece, either up and to the left one square or up and to the right one square
+						if (destinationY == startY - 1 && destinationX == startX - 1 || destinationY == startY - 1 && destinationX == startX + 1)
+						{
+							//check if there's an enemy piece there (player 2's piece)
+							if (chessBoard[destinationY][destinationX][1] == '2')
+							{
+								returnValue = true; //valid movement
+							}
+						}
+					}
+				}
 			}
-			else //pawn belongs to player 2
+
+			//check for rook
+			else if (pieceType == 'R')
 			{
-				//if the destination is empty
-				if (chessBoard[destinationY][destinationX] == "")
-				{
-					//check for moving straight up 1 square
-					if (destinationY == startY - 1 && destinationX == startX)
-					{
-						returnValue = true; //valid movement
-					}
-					//check for moving straight up 2 squares
-					else if (destinationY == startY - 2 && destinationX == startX)
-					{
-						//ensure pawn is at the spawn location (row 7 aka index 6, and that there are no pieces on the square that's being passed along the way
-						if (startY == 6 && chessBoard[destinationY + 1][destinationX] == "")
-						{
-							returnValue = true; //valid movement
-						}
-					}
-				}
-				else //destination is not empty (there's a piece there)
-				{
-					//check for diagonal attack on another piece, either up and to the left one square or up and to the right one square
-					if (destinationY == startY - 1 && destinationX == startX - 1 || destinationY == startY - 1 && destinationX == startX + 1)
-					{
-						//check if there's an enemy piece there (player 1's piece)
-						if (chessBoard[destinationY][destinationX][1] == '1')
-						{
-							returnValue = true; //valid movement
-						}
-					}
-				}
+				//check if the move is valid horizontally/vertically
+				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
+			}
 
-				//check if pawn had a valid movement and reached the end of the enemy's board
-				if (returnValue == true && destinationY == 0)
-					chessBoard[startY][startX][0] = 'Q'; //change pawn to a queen
+			//check for knight
+			else if (pieceType == 'N')
+			{
+				//check for moving up 2 left 1, up 1 left 2, up 2 right 1, or up 1 right 2
+				if (startX - 2 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY - 2 == destinationY || startX - 2 == destinationX && startY + 1 == destinationY || startX - 1 == destinationX && startY + 2 == destinationY)
+					returnValue = true;
+				//check for moving down 2 left 1, down 1 left 2, down 2 right 1, or down 1 right 2
+				else if (startX + 2 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 2 == destinationY || startX + 2 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 2 == destinationY)
+					returnValue = true;
+			}
+
+			//check for bishop
+			else if (pieceType == 'B')
+			{
+				//check if the move is valid diagonally
+				if (isValidDiagonalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
+			}
+
+			//check for queen
+			else if (pieceType == 'Q')
+			{
+				//check if the move is valid either horizontally/vertically OR diagonally
+				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY) || isValidDiagonalMove(startX, startY, destinationX, destinationY))
+					returnValue = true;
+			}
+
+			else //piece is a king
+			{
+				//check for left, right, up, or down movement
+				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
+					returnValue = true;
+				//check for diagonal up to the left or right and diagonal down to the left or right
+				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
+					returnValue = true;
 			}
 		}
+	}
 
-		//check for rook
-		else if (pieceType == 'R')
-		{
-			//check if the move is valid horizontally/vertically
-			if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
+	//see if the king is in check first
+	if (returnValue)
+	{
+		std::string desinationPiece = chessBoard[destinationY][destinationX]; //stores the piece at the destination
 
-		//check for knight
-		else if (pieceType == 'N')
-		{
-			//check for moving up 2 left 1, up 1 left 2, up 2 right 1, or up 1 right 2
-			if (startX - 2 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY - 2 == destinationY || startX - 2 == destinationX && startY + 1 == destinationY || startX - 1 == destinationX && startY + 2 == destinationY)
-				returnValue = true;
-			//check for moving down 2 left 1, down 1 left 2, down 2 right 1, or down 1 right 2
-			else if (startX + 2 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 2 == destinationY || startX + 2 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 2 == destinationY)
-				returnValue = true;
-		}
+		chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
+		chessBoard[startY][startX] = ""; //clear the old start position
 
-		//check for bishop
-		else if (pieceType == 'B')
-		{
-			//check if the move is valid diagonally
-			if (isValidDiagonalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
+		//check if the move will put the player into check
+		if (isInCheck(chessBoard[destinationY][destinationX][1]))
+			returnValue = false; //invalid movement
 
-		//check for queen
-		else if (pieceType == 'Q')
-		{
-			//check if the move is valid either horizontally/vertically OR diagonally
-			if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY) || isValidDiagonalMove(startX, startY, destinationX, destinationY))
-				returnValue = true;
-		}
-
-		else //piece is a king
-		{
-			//check for left, right, up, or down movement
-			if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
-				returnValue = true;
-			//check for diagonal up to the left or right and diagonal down to the left or right
-			else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
-				returnValue = true;
-		}
+		chessBoard[startY][startX] = chessBoard[destinationY][destinationX]; //move piece back to start position
+		chessBoard[destinationY][destinationX] = desinationPiece; //reset the old desination
 	}
 
 	return returnValue;
@@ -710,6 +741,113 @@ bool isValidDiagonalMove(int startX, int startY, int destinationX, int destinati
 	return returnValue;
 }
 
+//setKingCoordinates function prototype
+//sets the x and y values for the king's position
+void setKingCoordinates(char playerNum, int &kingX, int &kingY)
+{
+	//loop through each row
+	for (int i = 0; i < 8; i++)
+	{
+		//loop through each column
+		for (int j = 0; j < 8; j++)
+		{
+			//if the king is at the current square
+			if (chessBoard[i][j] == ("K" + std::string(1, playerNum)))
+			{
+				//set the x and y values for the king
+				kingX = j;
+				kingY = i;
+				//stop looping
+				j = 8;
+				i = 8;
+			}
+		}
+	}
+}
+
+//isInCheck function prototype
+//determines if the player's king is in check
+bool isInCheck(char playerNum)
+{
+	//set the king's x and y coordinates
+	int kingX;
+	int kingY;
+	setKingCoordinates(playerNum, kingX, kingY);
+
+	//loop through each row
+	for (int k = 0; k < 8; k++)
+	{
+		//loop through each column
+		for (int m = 0; m < 8; m++)
+		{
+			//check if any pieces on the board can attack the king
+			if (isValidPieceMovement(k, m, kingX, kingY))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+//isCheckmate function
+//checks if a player has been checkmate'd (or however you say that)
+bool isCheckmate(char playerNum)
+{
+	//if the king is in check and cannot move anywhere
+	if (isInCheck(playerNum) && !canSaveKingMove(playerNum))
+		return true;
+	else
+		return false;
+}
+
+//canSaveKingMove function
+//checks if a player's king can move or be saved
+bool canSaveKingMove(char playerNum)
+{
+	//set the king's x and y coordinates
+	int kingX;
+	int kingY;
+	setKingCoordinates(playerNum, kingX, kingY);
+
+	//check if king can move up and to the left, straight up, or up and to the right
+	if (isValidPieceMovement(kingX, kingY, kingX - 1, kingY + 1) || isValidPieceMovement(kingX, kingY, kingX, kingY + 1) || isValidPieceMovement(kingX, kingY, kingX + 1, kingY + 1))
+		return true;
+	//check if king can move down and to the left, straight down, or down and to the right
+	else if (isValidPieceMovement(kingX, kingY, kingX - 1, kingY - 1) || isValidPieceMovement(kingX, kingY, kingX, kingY - 1) || isValidPieceMovement(kingX, kingY, kingX + 1, kingY - 1))
+		return true;
+	//check if king can move left or right
+	else if (isValidPieceMovement(kingX, kingY, kingX - 1, kingY) || isValidPieceMovement(kingX, kingY, kingX + 1, kingY))
+		return true;
+	else //no valid movement options
+	{
+		//loop through each row
+		for (int i = 0; i < 8; i++)
+		{
+			//loop through each column
+			for (int j = 0; j < 8; j++)
+			{
+				//if there is a friendly piece at the square, check if it has any valid movement options to protect the king
+				if (chessBoard[i][j] != "" && chessBoard[i][j][1] == playerNum)
+				{
+					//loop through each row
+					for (int k = 0; k < 8; k++)
+					{
+						//loop through each column
+						for (int m = 0; m < 8; m++)
+						{
+							//if the piece has any valid moves to get the king out of check
+							if (isValidPieceMovement(j, i, m, k))
+								return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false; //no valid options to save king
+}
+
 //isInputPattern function use regular expression to 
 //determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
 bool isInputPattern(const std::string& input)
@@ -798,26 +936,20 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
-//isEvent function
-//checks if a valid key was pressed
-bool isEvent(unsigned char event)
-{
-	return GetAsyncKeyState(event);
-}
-
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
 {
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 500, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
+	MoveWindow(console, 600, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
 	std::string userInputStart;      //user's input for the start location of the piece
 	std::string userInputEnd;        //user's input for the desired end location of the piece
 	int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
+	int defendingPlayer;             //holds the number of the defending player
 	bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
 	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
@@ -848,7 +980,7 @@ void playGame(bool isVersusComputer)
 		ScreenToClient(GetConsoleWindow(), &cursorPos);
 
 		//if a spot on the chess board was clicked
-		if (isEvent(Events::Mouse_Right))
+		if (GetAsyncKeyState(VK_RBUTTON))
 		{
 			//store the x and y coordinates of the position on the chess board that was clicked
 			//convert the x and y from pixles to coordinates, using the width as x and height as y of each square
@@ -866,8 +998,8 @@ void playGame(bool isVersusComputer)
 				highlightValidMoves(validMoves, startX, startY);
 
 				drawBoard(validMoves);
-				std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
-   			    //if the player is against the computer
+				std::cout << "\n" << previousTurnAction << "\n"; //output a description of the previous turn's action
+   				//if the player is against the computer
 				if (isVersusComputer)
 				{
 					std::cout << " Your turn.";
@@ -876,6 +1008,9 @@ void playGame(bool isVersusComputer)
 				{
 					std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
 				}
+				//display if the player is in check
+				if (isInCheck('0' + playerNumber))
+					std::cout << "\n Your king is in check!\n";
 			}
 			//if chess board coordinates' start positions are set
 			else if (startX >= 0 && startY >= 0)
@@ -887,6 +1022,10 @@ void playGame(bool isVersusComputer)
 				//if piece movement is valid, move it
 				if (isValidPieceMovement(startX, startY, endX, endY))
 				{
+					//reset all squares to invalid movement options till next turn
+					for (int i = 0; i < 64; i++)
+						validMoves[i] = false;
+
 					//update the previous turn's action
 					if (isVersusComputer)
 						previousTurnAction = " You";
@@ -894,7 +1033,7 @@ void playGame(bool isVersusComputer)
 						previousTurnAction = " Player " + std::to_string(playerNumber);
 
 					previousTurnAction += " moved " + getPieceName(chessBoard[startY][startX][0]) +
-						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " + 
+						" from " + convertNumberToLetterCoordinate(startX + 1) + std::to_string(startY + 1) + " to " +
 						convertNumberToLetterCoordinate(endX + 1) + std::to_string(endY + 1);
 
 					//check if end location has an enemy piece
@@ -904,24 +1043,48 @@ void playGame(bool isVersusComputer)
 
 					//move the piece
 					movePiece(startX, startY, endX, endY);
-
-					//reset all squares to invalid movement options till next turn
-					for (int i = 0; i < 64; i++)
-						validMoves[i] = false;
-
 					drawBoard(validMoves); //update board
+					std::cout << "\n" << previousTurnAction << "\n"; //output a description of the previous turn's action
 
-					std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+					//check which player is defending
+					if (playerNumber == 1)
+						defendingPlayer = 2;
+					else
+						defendingPlayer = 1;
+					//check for checkmate
+					if (isCheckmate('0' + defendingPlayer))
+					{
+						//display win message and exit the game
+						if (isVersusComputer)
+							std::cout << "\n CHECKMATE! You won the game!\n ";
+						else
+							std::cout << "\n CHECKMATE! Player " << playerNumber << " won the game!\n ";
+						system("pause");
+						break;
+					}
 
 					//if the player is against the computer
 					if (isVersusComputer)
 					{
+						//display computer player messages
 						std::cout << " Computer player's turn.";
+						if (isInCheck('0' + defendingPlayer))
+							std::cout << "\n The computer's king is in check!\n";
+
+						//pause and then do the computer's move
 						Sleep(1500);
 						performComputerTurn(previousTurnAction); //determine the computer player's action
 						drawBoard(validMoves); //update board
-						std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+						std::cout << "\n" << previousTurnAction << "\n"; //output a description of the previous turn's action
 						std::cout << " Your turn."; //tell the user it's their turn
+
+						//check for checkmate
+						if (isCheckmate('0' + playerNumber))
+						{
+							std::cout << "\n CHECKMATE! Computer player won the game!\n ";
+							system("pause");
+							break;
+						}
 					}
 					else //player vs player
 					{
@@ -934,15 +1097,20 @@ void playGame(bool isVersusComputer)
 						std::cout << " Player " << std::to_string(playerNumber) << "'s turn."; //display which player's turn it is
 					}
 
+					if (isInCheck('0' + playerNumber))
+						std::cout << "\n Your king is in check!\n";
+						
 					//reset start x and y
 					startX = -1;
 					startY = -1;
 				}
 			}
 
-			Sleep(100); //pause for 100ms (run at 10fps)
+			Sleep(50); //pause for 50ms (run at 20fps)
 		}
 	}
+
+	showMainMenu();
 }
 
 //performComputerTurn function
@@ -988,37 +1156,37 @@ void performComputerTurn(std::string &previousTurnAction)
 			//if a pawn was selected
 			if (chessBoard[startYIndex][startXIndex][0] == 'P')
 			{
-				//check if it can attack up and to the left
-				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex - 1))
+				//check if it can attack down and to the left
+				if (isValidPieceMovement(startXIndex, startYIndex, startXIndex - 1, startYIndex + 1))
 				{
 					endXIndex = startXIndex - 1;
-					endYIndex = startYIndex - 1;
+					endYIndex = startYIndex + 1;
 					validMoveSelected = true;
 					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
-				//check if it can attack up and to the right
-				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex - 1))
+				//check if it can attack down and to the right
+				else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex + 1, startYIndex + 1))
 				{
 					endXIndex = startXIndex + 1;
-					endYIndex = startYIndex - 1;
+					endYIndex = startYIndex + 1;
 					validMoveSelected = true;
 					i = MAXIMUM_CHECKS; //prioritize attacking
 				}
 				//can't attack, find a spot to move it
 				else
 				{
-					//try to move it 2 spaces up
-					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 2))
+					//try to move it 2 spaces down
+					if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 2))
 					{
 						endXIndex = startXIndex;
-						endYIndex = startYIndex - 2;
+						endYIndex = startYIndex + 2;
 						validMoveSelected = true;
 					}
-					//try to move it 1 space up
-					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex - 1))
+					//try to move it 1 space down
+					else if (isValidPieceMovement(startXIndex, startYIndex, startXIndex, startYIndex + 1))
 					{
 						endXIndex = startXIndex;
-						endYIndex = startYIndex - 1;
+						endYIndex = startYIndex + 1;
 						validMoveSelected = true;
 					}
 				}
@@ -1027,7 +1195,7 @@ void performComputerTurn(std::string &previousTurnAction)
 			else
 			{
 				//loop 80 times checking for a valid move
-				for (int j = 0; j < 99; j++)
+				for (int j = 0; j < 80; j++)
 				{
 					//set a random x and y index between 0 and 7
 					tempEndXIndex = rand() % 8;
@@ -1077,6 +1245,14 @@ void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
 	chessBoard[startY][startX] = ""; //clear the old start position
+
+	//check if pawn reached the end of the enemy's board
+	//check for player 1's pawn
+	if (destinationY == 0 && chessBoard[destinationY][destinationX][0] == 'P' && chessBoard[destinationY][destinationX][1] == '1')
+		chessBoard[destinationY][destinationX][0] = 'Q'; //change pawn to a queen
+	//check for player 2's pawn
+	else if (destinationY == 7 && chessBoard[destinationY][destinationX][0] == 'P' && chessBoard[destinationY][destinationX][1] == '2')
+		chessBoard[destinationY][destinationX][0] = 'Q'; //change pawn to a queen
 }
 
 //highlightValidMoves function
@@ -1110,11 +1286,12 @@ void toggleMusic()
 //displays the main menu
 void showMainMenu()
 {
+	system("cls");
 	bool isDone = false;
 
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
-	MoveWindow(console, 100, 0, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
+	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
 
 	//display "MAIN MENU"
 	std::cout.width(89);
@@ -1159,7 +1336,7 @@ void showMainMenu()
 	std::cout << "Enter one of the following options:\n\n\n";
 	std::cout.width(90);
 	std::cout << "|| [1] How To Play || \n\n\n" << std::endl;
-	std::cout.width(94);
+	std::cout.width(93);
 	std::cout << " || [2] Player vs Player || \n\n\n" << std::endl;
 	std::cout.width(94);
 	std::cout << " || [3] Player vs Computer || \n\n\n" << std::endl;
@@ -1182,24 +1359,25 @@ void showMainMenu()
 	
 	while (!isDone)
 	{
+		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
+		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
-		if (isEvent(Events::One)) {
-
-			if (isEvent(Events::One)) {
-				isEnd = false;
-			}
+		if (GetAsyncKeyState('1') & 0x8000)
 			howTo();
 		}
 		//check for 2 (player vs player)
-		else if (isEvent(Events::Two))
+		else if (GetAsyncKeyState('2') & 0x8000)
 			playGame();
+
 		//check for 3 (player vs computer)
-		else if (isEvent(Events::Three))
+		else if (GetAsyncKeyState('3') & 0x8000)
 			playGame(true);
+
 		//check for 4 (player wants to exit)
-		else if (isEvent(Events::Four))
+		else if (GetAsyncKeyState('4') & 0x8000)
 			isDone = true;
 
-		Sleep(100);
+		else
+			Sleep(50);
 	}
 }
