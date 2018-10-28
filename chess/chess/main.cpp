@@ -302,7 +302,6 @@ void howTo()
 		if (inPlay) {
 			// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
 			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-
 			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
 				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Back to game.\n";
 			std::cout << "\n\nEnter your selection: ";
@@ -970,11 +969,7 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
-// memorize all data
 bool isGamePause = false;
-int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
-bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
-std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
@@ -988,11 +983,19 @@ void playGame(bool isVersusComputer)
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
+	static int playerNumber;		 //an int that is either 1 or 2, which determines which player's move it is
+	static bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
+	static std::string previousTurnAction = ""; //a small description of the previous turn's action
+
 	std::string userInputStart;      //user's input for the start location of the piece
 	std::string userInputEnd;        //user's input for the desired end location of the piece
 	int defendingPlayer;             //holds the number of the defending player
 
 	if (isGamePause == false) {
+		// reset datas
+		playerNumber = 1;           
+		previousTurnAction = " Game started."; 
+
 		initializeBoard();     //reset the chess board
 		drawBoard(validMoves); //display the chess board to the user
 	}
@@ -1033,14 +1036,6 @@ void playGame(bool isVersusComputer)
 
 			// store all data need for update game once back
 			howTo();
-		}
-
-		// if esc key pressed, exit game to main menu
-		if (GetAsyncKeyState(VK_ESCAPE)) {
-			//reset msg
-			previousTurnAction = " Game started."; //a small description of the previous turn's action
-			// end game and back to menu
-			showMainMenu();
 		}
 
 		//declare and set the cursor position to get the x and y values (in pixels)
@@ -1458,7 +1453,6 @@ void showMainMenu()
 		//check for 4 (player wants to exit)
 		else if (GetAsyncKeyState('4') & 0x8000)
 			isDone = true;
-
 		else
 			Sleep(50);
 	}
