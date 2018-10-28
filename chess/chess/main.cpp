@@ -81,6 +81,10 @@ bool isCheckmate(char playerNum);
 //checks if a player's king can move or be saved
 bool canSaveKingMove(char playerNum);
 
+//isStalemate function prototype
+//checks if stalemate happens
+bool isStalemate(char playerNum);
+
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
 bool isInputPattern(const std::string& input);
@@ -277,15 +281,13 @@ void drawBoard(bool validMoves[64])
 	}
 }
 
-bool isEnd = false;
-
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
 {
 	std::string response; //uses char to avoid some errors that happen when the user enters invalid numbers in an int
 
-	while (!isEnd)
+	while (1)
 	{
 		system("cls"); //clear screen every time it loops
 
@@ -848,6 +850,15 @@ bool canSaveKingMove(char playerNum)
 	return false; //no valid options to save king
 }
 
+bool isStalemate(char playerNum)
+{
+	//not in check but king can't move and no other pieces can protect king
+	if (!isInCheck(playerNum) && !canSaveKingMove(playerNum))
+		return true;
+	else
+		return false;
+}
+
 //isInputPattern function use regular expression to 
 //determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
 bool isInputPattern(const std::string& input)
@@ -1062,7 +1073,13 @@ void playGame(bool isVersusComputer)
 						system("pause");
 						break;
 					}
-
+					//check for stalemate
+					if (isStalemate('0' + defendingPlayer))
+					{
+						std::cout << "\n STALEMATE!!\n ";
+						system("pause");
+						break;
+					}
 					//if the player is against the computer
 					if (isVersusComputer)
 					{
@@ -1082,6 +1099,12 @@ void playGame(bool isVersusComputer)
 						if (isCheckmate('0' + playerNumber))
 						{
 							std::cout << "\n CHECKMATE! Computer player won the game!\n ";
+							system("pause");
+							break;
+						}
+						if (isStalemate('0' + playerNumber))
+						{
+							std::cout << "\n STALEMATE!!!\n ";
 							system("pause");
 							break;
 						}
@@ -1364,7 +1387,6 @@ void showMainMenu()
 		//check for 1 (how to play)
 		if (GetAsyncKeyState('1') & 0x8000)
 			howTo();
-		}
 		//check for 2 (player vs player)
 		else if (GetAsyncKeyState('2') & 0x8000)
 			playGame();
