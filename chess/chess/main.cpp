@@ -81,6 +81,14 @@ bool isCheckmate(char playerNum);
 //checks if a player's king can move or be saved
 bool canSaveKingMove(char playerNum);
 
+//isStalemate function prototype
+//checks if stalemate happens
+bool isStalemate(char playerNum);
+
+//isStalemate function prototype
+//check if player only has king
+bool isOnlyKing(char playerNum);
+
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
 bool isInputPattern(const std::string& input);
@@ -277,6 +285,10 @@ void drawBoard(bool validMoves[64])
 	}
 }
 
+bool inPlay = false;
+// memorize the play mode
+bool isPVP = false;
+
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
@@ -291,10 +303,20 @@ void howTo()
 		HWND console = GetConsoleWindow();
 		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
-		std::cout << "\n\nEnter your selection: ";
-		std::cin >> response;
+		if (inPlay) {
+			// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
+			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Back to game.\n";
+			std::cout << "\n\nEnter your selection: ";
+			std::cin >> response;
+		}
+		else {
+			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+			std::cout << "\n\nEnter your selection: ";
+			std::cin >> response;
+		}
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
 
@@ -389,7 +411,8 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			break;
+			isEnd = true;
+			showMainMenu();
 		}
 		else
 		{
@@ -401,6 +424,14 @@ void howTo()
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
 
+	if (inPlay) 
+	{
+		if (isPVP)
+		playGame();
+		else
+		playGame(true);
+	}
+	else
 	showMainMenu();
 }
 
@@ -846,6 +877,91 @@ bool canSaveKingMove(char playerNum)
 	return false; //no valid options to save king
 }
 
+bool isOnlyKing(char playerNum) 
+{
+	bool pK = false;
+	bool pR = false;
+	bool pN = false;
+	bool pB = false;
+	bool pQ = false;
+	bool pP = false;
+
+	// player 1
+	if (playerNum == '1')
+	{
+		//loop through each row
+		for (int i = 0; i < 8; i++)
+		{
+			//loop through each column
+			for (int j = 0; j < 8; j++)
+			{
+				//check for player 1 has this pieces
+				if (chessBoard[i][j] != "" && chessBoard[i][j][1] == '1')
+				{
+					if (chessBoard[i][j] == "R1")
+						pR = true;
+					else if (chessBoard[i][j] == "N1")
+						pN = true;
+					else if (chessBoard[i][j] == "B1")
+						pB = true;
+					else if (chessBoard[i][j] == "Q1")
+						pQ = true;
+					else if (chessBoard[i][j] == "P1")
+						pP = true;
+					else 
+						pK = true;
+				}
+			}
+		}
+	}
+	else 
+	{ 
+		//player 2
+		//loop through each row
+		for (int k = 0; k < 8; k++)
+		{
+			//loop through each column
+			for (int l = 0; l < 8; l++)
+			{
+				//check for player 1 has this pieces
+				if (chessBoard[k][l] != "" && chessBoard[k][l][1] == '2')
+				{
+					if (chessBoard[k][l] == "R2")
+						pR = true;
+					else if (chessBoard[k][l] == "N2")
+						pN = true;
+					else if (chessBoard[k][l] == "B2")
+						pB = true;
+					else if (chessBoard[k][l] == "Q2")
+						pQ = true;
+					else if (chessBoard[k][l] == "P2")
+						pP = true;
+					else
+						pK = true;
+				}
+			}
+		}
+	}
+
+	// if player only has king
+	if (pK == true && pR == false && pN == false && pB == false && pQ == false && pP == false)
+		return true;
+	else
+		return false;
+}
+
+bool isStalemate(char playerNum)
+{
+	// both player only has king
+	if (isOnlyKing('1') && isOnlyKing('2'))
+		return true;
+	//not in check but king can't move and no other pieces can protect king
+	else if (!isInCheck(playerNum) && !canSaveKingMove(playerNum))
+		return true;
+	else
+		return false;
+}
+
 //isInputPattern function use regular expression to 
 //determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
 bool isInputPattern(const std::string& input)
@@ -934,25 +1050,40 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
+bool isGamePause = false;
+
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
 {
+	inPlay = true;
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	MoveWindow(console, 600, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 240);
 
+	static int playerNumber;		 //an int that is either 1 or 2, which determines which player's move it is
+	static bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
+	static std::string previousTurnAction = ""; //a small description of the previous turn's action
+
 	std::string userInputStart;      //user's input for the start location of the piece
 	std::string userInputEnd;        //user's input for the desired end location of the piece
-	int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
 	int defendingPlayer;             //holds the number of the defending player
-	bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
-	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
-	initializeBoard();     //reset the chess board
-	drawBoard(validMoves); //display the chess board to the user
+	if (isGamePause == false) {
+		// reset datas
+		playerNumber = 1;           
+		previousTurnAction = " Game started."; 
+
+		initializeBoard();     //reset the chess board
+		drawBoard(validMoves); //display the chess board to the user
+	}
+	else {
+		//update game use saved data
+		drawBoard(validMoves);
+	}
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -965,13 +1096,29 @@ void playGame(bool isVersusComputer)
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 
 	//display whos turn it is
-	if (isVersusComputer)
+	if (isVersusComputer) 
+	{
 		std::cout << " Your turn.";
+		isPVP = false;
+	}
 	else
+	{
 		std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
+		isPVP = true;
+	}
 
 	while (1)
 	{
+		// user clicked 1 to check how to play
+		if (GetAsyncKeyState('1') & 0x8000) 
+		{
+			// Pause the game to read how to play
+			isGamePause = true;
+
+			// store all data need for update game once back
+			howTo();
+		}
+
 		//declare and set the cursor position to get the x and y values (in pixels)
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
@@ -1060,7 +1207,13 @@ void playGame(bool isVersusComputer)
 						system("pause");
 						break;
 					}
-
+					//check for stalemate
+					if (isStalemate('0' + defendingPlayer))
+					{
+						std::cout << "\n STALEMATE!!\n ";
+						system("pause");
+						break;
+					}
 					//if the player is against the computer
 					if (isVersusComputer)
 					{
@@ -1080,6 +1233,12 @@ void playGame(bool isVersusComputer)
 						if (isCheckmate('0' + playerNumber))
 						{
 							std::cout << "\n CHECKMATE! Computer player won the game!\n ";
+							system("pause");
+							break;
+						}
+						if (isStalemate('0' + playerNumber))
+						{
+							std::cout << "\n STALEMATE!!!\n ";
 							system("pause");
 							break;
 						}
@@ -1287,6 +1446,10 @@ void showMainMenu()
 	system("cls");
 	bool isDone = false;
 
+	// reset data
+	inPlay = false;
+	isGamePause = false;
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
@@ -1354,26 +1517,27 @@ void showMainMenu()
 	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
 
 	system("color 6");
-
+	
 	while (!isDone)
 	{
 		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
 		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
-		if (GetAsyncKeyState('1') & 0x8000)
+		if (isEvent(Events::One)) {
+
+			if (isEvent(Events::One)) {
+				isEnd = false;
+			}
 			howTo();
 		//check for 2 (player vs player)
-		else if (GetAsyncKeyState('2') & 0x8000)
+		else if (GetAsyncKeyState('2') & 0x8000) 
 			playGame();
-
 		//check for 3 (player vs computer)
-		else if (GetAsyncKeyState('3') & 0x8000)
+		else if (GetAsyncKeyState('3') & 0x8000) 
 			playGame(true);
-
 		//check for 4 (player wants to exit)
 		else if (GetAsyncKeyState('4') & 0x8000)
 			isDone = true;
-
 		else
 			Sleep(50);
 	}
