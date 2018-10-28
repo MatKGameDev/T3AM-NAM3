@@ -1033,10 +1033,17 @@ void playGame(bool isVersusComputer)
 			isGamePause = true;
 
 			// store all data need for update game once back
-
-
 			howTo();
 		}
+
+		// if esc key pressed, exit game to main menu
+		if (GetAsyncKeyState(VK_ESCAPE)) {
+			//reset msg
+			previousTurnAction = " Game started."; //a small description of the previous turn's action
+			// end game and back to menu
+			showMainMenu();
+		}
+
 		//declare and set the cursor position to get the x and y values (in pixels)
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
@@ -1364,6 +1371,7 @@ void showMainMenu()
 	system("cls");
 	bool isDone = false;
 
+	// reset data
 	inPlay = false;
 	isGamePause = false;
 
