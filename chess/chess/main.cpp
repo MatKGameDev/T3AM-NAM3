@@ -85,6 +85,10 @@ bool canSaveKingMove(char playerNum);
 //checks if stalemate happens
 bool isStalemate(char playerNum);
 
+//isStalemate function prototype
+//check if player only has king
+bool isOnlyKing(char playerNum);
+
 //isInputPattern function prototype
 //check user input correct format 1-8,1-8
 bool isInputPattern(const std::string& input);
@@ -873,10 +877,86 @@ bool canSaveKingMove(char playerNum)
 	return false; //no valid options to save king
 }
 
+bool isOnlyKing(char playerNum) 
+{
+	bool pK = false;
+	bool pR = false;
+	bool pN = false;
+	bool pB = false;
+	bool pQ = false;
+	bool pP = false;
+
+	// player 1
+	if (playerNum == '1')
+	{
+		//loop through each row
+		for (int i = 0; i < 8; i++)
+		{
+			//loop through each column
+			for (int j = 0; j < 8; j++)
+			{
+				//check for player 1 has this pieces
+				if (chessBoard[i][j] != "" && chessBoard[i][j][1] == '1')
+				{
+					if (chessBoard[i][j] == "R1")
+						pR = true;
+					else if (chessBoard[i][j] == "N1")
+						pN = true;
+					else if (chessBoard[i][j] == "B1")
+						pB = true;
+					else if (chessBoard[i][j] == "Q1")
+						pQ = true;
+					else if (chessBoard[i][j] == "P1")
+						pP = true;
+					else 
+						pK = true;
+				}
+			}
+		}
+	}
+	else 
+	{ 
+		//player 2
+		//loop through each row
+		for (int k = 0; k < 8; k++)
+		{
+			//loop through each column
+			for (int l = 0; l < 8; l++)
+			{
+				//check for player 1 has this pieces
+				if (chessBoard[k][l] != "" && chessBoard[k][l][1] == '2')
+				{
+					if (chessBoard[k][l] == "R2")
+						pR = true;
+					else if (chessBoard[k][l] == "N2")
+						pN = true;
+					else if (chessBoard[k][l] == "B2")
+						pB = true;
+					else if (chessBoard[k][l] == "Q2")
+						pQ = true;
+					else if (chessBoard[k][l] == "P2")
+						pP = true;
+					else
+						pK = true;
+				}
+			}
+		}
+	}
+
+	// if player only has king
+	if (pK == true && pR == false && pN == false && pB == false && pQ == false && pP == false)
+		return true;
+	else
+		return false;
+}
+
 bool isStalemate(char playerNum)
 {
+	// both player only has king
+	if (isOnlyKing('1') && isOnlyKing('2'))
+		return true;
 	//not in check but king can't move and no other pieces can protect king
-	if (!isInCheck(playerNum) && !canSaveKingMove(playerNum))
+	else if (!isInCheck(playerNum) && !canSaveKingMove(playerNum))
 		return true;
 	else
 		return false;
