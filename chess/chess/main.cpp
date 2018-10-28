@@ -281,6 +281,10 @@ void drawBoard(bool validMoves[64])
 	}
 }
 
+bool inPlay = false;
+// memorize the play mode
+bool isPVP = false;
+
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
@@ -295,10 +299,21 @@ void howTo()
 		HWND console = GetConsoleWindow();
 		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
 
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
-		std::cout << "\n\nEnter your selection: ";
-		std::cin >> response;
+		if (inPlay) {
+			// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
+			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Back to game.\n";
+			std::cout << "\n\nEnter your selection: ";
+			std::cin >> response;
+		}
+		else {
+			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+			std::cout << "\n\nEnter your selection: ";
+			std::cin >> response;
+		}
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
 
@@ -406,6 +421,14 @@ void howTo()
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
 
+	if (inPlay) 
+	{
+		if (isPVP)
+		playGame();
+		else
+		playGame(true);
+	}
+	else
 	showMainMenu();
 }
 
@@ -948,10 +971,18 @@ void isValidStartP2(std::string &userInput, std::string msg)
 	}
 }
 
+// memorize all data
+bool isGamePause = false;
+int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
+bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
+std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
+
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
 {
+	inPlay = true;
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	MoveWindow(console, 600, 200, 500, 720, TRUE); //startX, startY, width, height - int params for the console 
@@ -960,13 +991,16 @@ void playGame(bool isVersusComputer)
 
 	std::string userInputStart;      //user's input for the start location of the piece
 	std::string userInputEnd;        //user's input for the desired end location of the piece
-	int playerNumber = 1;            //an int that is either 1 or 2, which determines which player's move it is
 	int defendingPlayer;             //holds the number of the defending player
-	bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
-	std::string previousTurnAction = " Game started."; //a small description of the previous turn's action
 
-	initializeBoard();     //reset the chess board
-	drawBoard(validMoves); //display the chess board to the user
+	if (isGamePause == false) {
+		initializeBoard();     //reset the chess board
+		drawBoard(validMoves); //display the chess board to the user
+	}
+	else {
+		//update game use saved data
+		drawBoard(validMoves);
+	}
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -979,13 +1013,30 @@ void playGame(bool isVersusComputer)
 	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
 
 	//display whos turn it is
-	if (isVersusComputer)
+	if (isVersusComputer) 
+	{
 		std::cout << " Your turn.";
+		isPVP = false;
+	}
 	else
+	{
 		std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
+		isPVP = true;
+	}
 
 	while (1)
 	{
+		// user clicked 1 to check how to play
+		if (GetAsyncKeyState('1') & 0x8000) 
+		{
+			// Pause the game to read how to play
+			isGamePause = true;
+
+			// store all data need for update game once back
+
+
+			howTo();
+		}
 		//declare and set the cursor position to get the x and y values (in pixels)
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
@@ -1313,6 +1364,9 @@ void showMainMenu()
 	system("cls");
 	bool isDone = false;
 
+	inPlay = false;
+	isGamePause = false;
+
 	//used the following thread for help with resizing the console window: stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
@@ -1393,13 +1447,11 @@ void showMainMenu()
 			}
 			howTo();
 		//check for 2 (player vs player)
-		else if (GetAsyncKeyState('2') & 0x8000)
+		else if (GetAsyncKeyState('2') & 0x8000) 
 			playGame();
-
 		//check for 3 (player vs computer)
-		else if (GetAsyncKeyState('3') & 0x8000)
+		else if (GetAsyncKeyState('3') & 0x8000) 
 			playGame(true);
-
 		//check for 4 (player wants to exit)
 		else if (GetAsyncKeyState('4') & 0x8000)
 			isDone = true;
