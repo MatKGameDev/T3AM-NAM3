@@ -136,14 +136,14 @@ void initializeBoard()
 	//2 chars: [Char signifying piece's type] [Player number that owns the piece]
 
 	//player 2 pieces
-	chessBoard[0][0] = "R2";
+	chessBoard[0][0] = "R21";
 	chessBoard[0][1] = "N2";
 	chessBoard[0][2] = "B2";
 	chessBoard[0][3] = "Q2";
 	chessBoard[0][4] = "K2";
 	chessBoard[0][5] = "B2";
 	chessBoard[0][6] = "N2";
-	chessBoard[0][7] = "R2";
+	chessBoard[0][7] = "R22";
 	//player 2 pawns
 	chessBoard[1][0] = "P2";
 	chessBoard[1][1] = "P2";
@@ -171,14 +171,14 @@ void initializeBoard()
 	chessBoard[6][6] = "P1";
 	chessBoard[6][7] = "P1";
 	//player 1 pieces	 
-	chessBoard[7][0] = "R1";
+	chessBoard[7][0] = "R11";
 	chessBoard[7][1] = "N1";
 	chessBoard[7][2] = "B1";
 	chessBoard[7][3] = "Q1";
 	chessBoard[7][4] = "K1";
 	chessBoard[7][5] = "B1";
 	chessBoard[7][6] = "N1";
-	chessBoard[7][7] = "R1";
+	chessBoard[7][7] = "R12";
 }
 
 //drawBoard function
@@ -292,7 +292,7 @@ void howTo()
 		MoveWindow(console, 500, 200, 520, 500, TRUE); //startX, startY, width, height - int params for the console window
 
 		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Playing the game.\n12. Return to main menu";
 		std::cout << "\n\nEnter your selection: ";
 		std::cin >> response;
 
@@ -389,6 +389,11 @@ void howTo()
 		}
 		else if (response == "11")
 		{
+			std::cout << "To move your pieces, you right click the piece you would\n";
+			std::cout << "like to move and right click one of the highlighted spots.";
+		}
+		else if (response == "12")
+		{
 			break;
 		}
 		else
@@ -465,6 +470,7 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0)
 		return false;
 
+	static bool hasBlueKingMoved = false, hasBlueRook1Moved = false, hasBlueRook2Moved = false, hasRedKingMoved = false, hasRedRook1Moved = false, hasRedRook2Moved = false;
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
@@ -552,7 +558,36 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 			{
 				//check if the move is valid horizontally/vertically
 				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				{
 					returnValue = true;
+
+					if (startY == 0)
+					{
+						if (chessBoard[startY][startX][1] == '2' && chessBoard[startY][startX][2] == '2')
+						{
+							hasRedRook2Moved = true;
+							std::cout << "RedRook2";
+						}
+						else if (chessBoard[startY][startX][1] == '2' && chessBoard[startY][startX][2] == '1')
+						{
+							hasRedRook1Moved = true;
+							std::cout << "RedRook1";
+						}
+					}
+					else if (startY == 7)
+					{
+						if (chessBoard[startY][startX][1] == '1' && chessBoard[startY][startX][2] == '2')
+						{
+							hasBlueRook2Moved = true;
+							std::cout << "BlueRook2";
+						}
+						else if (chessBoard[startY][startX][1] == '1' && chessBoard[startY][startX][2] == '1')
+						{
+							hasBlueRook1Moved = true;
+							std::cout << "BlueRook1";
+						}
+					}
+					}
 			}
 
 			//check for knight
@@ -582,18 +617,45 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 					returnValue = true;
 			}
 
-			else //piece is a king
+			else if (pieceType == 'K')//piece is a king
 			{
 				//check for left, right, up, or down movement
 				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
+				{
 					returnValue = true;
+				}
 				//check for diagonal up to the left or right and diagonal down to the left or right
 				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
+				{
 					returnValue = true;
+				}
+				//check for castling
+				else if (startX + 2 == destinationX && startY == destinationY  && chessBoard[startY][startX][1] == '1' && hasBlueKingMoved == false && hasBlueRook2Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				{
+					returnValue = true;
+				}
+				else if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '2' && hasRedKingMoved == false && hasRedRook2Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				{
+					returnValue = true;
+				}
+				else if (startX - 3 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '1' && hasBlueKingMoved == false && hasBlueRook1Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				{
+					returnValue = true;
+				}
+				else if (startX - 3 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '2' && hasBlueKingMoved == false && hasRedRook1Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				{
+					returnValue = true;
+				}
+
+
+			//	if (pieceType == 'K' && chessBoard[startY][startX][1] == '1')
+				//	hasBlueKingMoved = true;
+				//else if (pieceType == 'K' && chessBoard[startY][startX][1] == '2')
+					//hasRedKingMoved = true;
 			}
 		}
 	}
-
+	
 	//see if the king is in check first
 	if (returnValue)
 	{
@@ -609,7 +671,6 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 		chessBoard[startY][startX] = chessBoard[destinationY][destinationX]; //move piece back to start position
 		chessBoard[destinationY][destinationX] = desinationPiece; //reset the old desination
 	}
-
 	return returnValue;
 }
 
