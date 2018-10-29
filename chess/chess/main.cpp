@@ -1415,6 +1415,7 @@ void showMainMenu()
 	//used the following thread for help with resizing the console window: www.stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
 	MoveWindow(console, 250, 80, 1300, 880, TRUE); //startX, startY, width, height - int params for the console window
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); //set main menu colour
 
 	//display "MAIN MENU"
 	std::cout.width(89);
@@ -1477,8 +1478,6 @@ void showMainMenu()
 	std::cout << "Thaidan Goguen-Bogdanis, 100706090" << std::endl;
 	std::cout.width(130);
 	std::cout << "Mathew Kostrzewa, 100591924" << std::endl;
-
-	system("color 6");
 	
 	while (!isDone)
 	{
