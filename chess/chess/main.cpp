@@ -420,7 +420,6 @@ void howTo()
 		}
 		else if (response == "11")
 		{
-			isEnd = true;
 			showMainMenu();
 		}
 		else
@@ -1486,13 +1485,9 @@ void showMainMenu()
 		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
 		if (isEvent(Events::One)) {
-
-			if (isEvent(Events::One)) {
-				isEnd = false;
-			}
 			howTo();
 		//check for 2 (player vs player)
-		else if (GetAsyncKeyState('2') & 0x8000) 
+		 if (GetAsyncKeyState('2') & 0x8000) 
 			playGame();
 		//check for 3 (player vs computer)
 		else if (GetAsyncKeyState('3') & 0x8000) 
