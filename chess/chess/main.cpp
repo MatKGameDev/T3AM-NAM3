@@ -1487,7 +1487,7 @@ void showMainMenu()
 		if (GetAsyncKeyState('1') & 0x8000)
 			howTo();
 		//check for 2 (player vs player)
-		 if (GetAsyncKeyState('2') & 0x8000) 
+		else if (GetAsyncKeyState('2') & 0x8000) 
 			playGame();
 		//check for 3 (player vs computer)
 		else if (GetAsyncKeyState('3') & 0x8000) 
