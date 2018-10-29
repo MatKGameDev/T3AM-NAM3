@@ -1484,7 +1484,7 @@ void showMainMenu()
 		//GetAsyncKeyState checks for a key press and the "0x8000" checks if the key is being pressed down (otherwise it would always return true after the first keypress)
 		//thanks to this thread for help: https://stackoverflow.com/questions/41600981/how-do-i-check-if-a-key-is-pressed-on-c
 		//check for 1 (how to play)
-		if (isEvent(Events::One)) {
+		if (GetAsyncKeyState('1') & 0x8000)
 			howTo();
 		//check for 2 (player vs player)
 		 if (GetAsyncKeyState('2') & 0x8000) 
