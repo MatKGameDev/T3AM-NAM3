@@ -167,7 +167,7 @@ void initializeBoard()
 void drawBoard(bool validMoves[64])
 {
 	const int BOARD_COLOUR = 15;
-	const int PLAYER_ONE_COLOUR = 10;
+	const int PLAYER_ONE_COLOUR = 9;
 	const int PLAYER_TWO_COLOUR = 12;
 	const int HIGHLIGHT_COLOUR = 142;
 
@@ -364,9 +364,9 @@ void howTo()
 		}
 		else if (response == "9")
 		{
-			std::cout << "Player 1\'s pieces are represented by the green letters.\n";
+			std::cout << "Player 1\'s pieces are represented by the blue letters.\n";
 			std::cout << "Player 2\'s pieces are represented by the red letters.\n";
-			std::cout << "Player 1 starts at the top, and always moves first.";
+			std::cout << "Player 1 starts at the bottom, and always moves first.";
 		}
 		else if (response == "10")
 		{
@@ -381,8 +381,6 @@ void howTo()
 			std::cout << "\nThe king cannot castle into check.\n";
 			std::cout << "\nThe king cannot castle if their are any pieces between it\n";
 			std::cout << "and the rook it is using to castle.\n";
-			std::cout << "\nThe king cannot castle  across a space that is being\n";
-			std::cout << "attacked.";
 		}
 		else if (response == "11")
 		{
