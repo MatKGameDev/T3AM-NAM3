@@ -134,16 +134,17 @@ void initializeBoard()
 {
 	//######## STRING FORMAT FOR GAME PIECES ########
 	//2 chars: [Char signifying piece's type] [Player number that owns the piece]
+	//King and Rook pieces have a third char that is used to represent if it is Inactive [I] or Active [A] (has not been moved vs has been moved) for castling
 
 	//player 2 pieces
-	chessBoard[0][0] = "R21";
+	chessBoard[0][0] = "R2I";
 	chessBoard[0][1] = "N2";
 	chessBoard[0][2] = "B2";
 	chessBoard[0][3] = "Q2";
-	chessBoard[0][4] = "K2";
+	chessBoard[0][4] = "K2I";
 	chessBoard[0][5] = "B2";
 	chessBoard[0][6] = "N2";
-	chessBoard[0][7] = "R22";
+	chessBoard[0][7] = "R2I";
 	//player 2 pawns
 	chessBoard[1][0] = "P2";
 	chessBoard[1][1] = "P2";
@@ -171,14 +172,14 @@ void initializeBoard()
 	chessBoard[6][6] = "P1";
 	chessBoard[6][7] = "P1";
 	//player 1 pieces	 
-	chessBoard[7][0] = "R11";
+	chessBoard[7][0] = "R1I";
 	chessBoard[7][1] = "N1";
 	chessBoard[7][2] = "B1";
 	chessBoard[7][3] = "Q1";
-	chessBoard[7][4] = "K1";
+	chessBoard[7][4] = "K1I";
 	chessBoard[7][5] = "B1";
 	chessBoard[7][6] = "N1";
-	chessBoard[7][7] = "R12";
+	chessBoard[7][7] = "R1I";
 }
 
 //drawBoard function
@@ -195,7 +196,7 @@ void drawBoard(bool validMoves[64])
 	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
 	for (int i = 0; i < 33; i++)//for the size of the board
 	{
-		if (i % 4 == 0) //prints out the horiztonal border
+		if (i % 4 == 0) //prints out the horizontal boarder
 		{
 			std::cout << "   *************************************************\n";
 		}
@@ -466,11 +467,7 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	//if the start position isn't a piece
 	if (chessBoard[startY][startX] == "")
 		return false;
-	//if the destination is off the board
-	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0)
-		return false;
 
-	static bool hasBlueKingMoved = false, hasBlueRook1Moved = false, hasBlueRook2Moved = false, hasRedKingMoved = false, hasRedRook1Moved = false, hasRedRook2Moved = false;
 	bool returnValue = false;
 	char pieceType = chessBoard[startY][startX][0]; //hold the char that defines the piece's type
 
@@ -558,36 +555,7 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 			{
 				//check if the move is valid horizontally/vertically
 				if (isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				{
 					returnValue = true;
-
-					if (startY == 0)
-					{
-						if (chessBoard[startY][startX][1] == '2' && chessBoard[startY][startX][2] == '2')
-						{
-							hasRedRook2Moved = true;
-							std::cout << "RedRook2";
-						}
-						else if (chessBoard[startY][startX][1] == '2' && chessBoard[startY][startX][2] == '1')
-						{
-							hasRedRook1Moved = true;
-							std::cout << "RedRook1";
-						}
-					}
-					else if (startY == 7)
-					{
-						if (chessBoard[startY][startX][1] == '1' && chessBoard[startY][startX][2] == '2')
-						{
-							hasBlueRook2Moved = true;
-							std::cout << "BlueRook2";
-						}
-						else if (chessBoard[startY][startX][1] == '1' && chessBoard[startY][startX][2] == '1')
-						{
-							hasBlueRook1Moved = true;
-							std::cout << "BlueRook1";
-						}
-					}
-					}
 			}
 
 			//check for knight
@@ -621,37 +589,25 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 			{
 				//check for left, right, up, or down movement
 				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
-				{
 					returnValue = true;
-				}
 				//check for diagonal up to the left or right and diagonal down to the left or right
 				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
-				{
 					returnValue = true;
-				}
+
 				//check for castling
-				else if (startX + 2 == destinationX && startY == destinationY  && chessBoard[startY][startX][1] == '1' && hasBlueKingMoved == false && hasBlueRook2Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
+				//ensure the king hasnt been active
+				else if (chessBoard[startY][startX][2] == 'I')
 				{
-					returnValue = true;
-				}
-				else if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '2' && hasRedKingMoved == false && hasRedRook2Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				{
-					returnValue = true;
-				}
-				else if (startX - 3 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '1' && hasBlueKingMoved == false && hasBlueRook1Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				{
-					returnValue = true;
-				}
-				else if (startX - 3 == destinationX && startY == destinationY && chessBoard[startY][startX][1] == '2' && hasBlueKingMoved == false && hasRedRook1Moved == false && isValidHorizontalOrVerticalMove(startX, startY, destinationX, destinationY))
-				{
-					returnValue = true;
-				}
+					std::string rookName = "R" + std::string(1, chessBoard[startY][startX][1]) + std::string(1, 'I'); //holds the name of the rook (just so we dont have to copy paste this ugly function)
 
-
-			//	if (pieceType == 'K' && chessBoard[startY][startX][1] == '1')
-				//	hasBlueKingMoved = true;
-				//else if (pieceType == 'K' && chessBoard[startY][startX][1] == '2')
-					//hasRedKingMoved = true;
+					//check for king moving to the right, and make sure there is a rook there and that it is friendly
+					if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX + 3] == rookName)
+						returnValue = true;
+					
+					//check for king moving to the left, and make sure there is a rook there and that it is friendly
+					else if (startX - 2 == destinationX && startY == destinationY && chessBoard[startY][startX - 4] == rookName)
+						returnValue = true;
+				}
 			}
 		}
 	}
@@ -811,7 +767,7 @@ void setKingCoordinates(char playerNum, int &kingX, int &kingY)
 		for (int j = 0; j < 8; j++)
 		{
 			//if the king is at the current square
-			if (chessBoard[i][j] == ("K" + std::string(1, playerNum)))
+			if (chessBoard[i][j][0] == 'K' && chessBoard[i][j][1] == playerNum)
 			{
 				//set the x and y values for the king
 				kingX = j;
@@ -828,10 +784,9 @@ void setKingCoordinates(char playerNum, int &kingX, int &kingY)
 //determines if the player's king is in check
 bool isInCheck(char playerNum)
 {
-	//set the king's x and y coordinates
 	int kingX;
 	int kingY;
-	setKingCoordinates(playerNum, kingX, kingY);
+	setKingCoordinates(playerNum, kingX, kingY); //set the king's x and y coordinates
 
 	//loop through each row
 	for (int k = 0; k < 8; k++)
@@ -1302,8 +1257,28 @@ void performComputerTurn(std::string &previousTurnAction)
 //moves a piece from the start to the end location and clears the old start location
 void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
+	//check for castling
+	//king moving right
+	if (startX + 2 == destinationX && chessBoard[startY][startX][0] == 'K') //we know the rest is valid because we checked in the isValidPieceMovement function
+	{
+		//move the rook
+		chessBoard[startY][startX + 1] = chessBoard[startY][startX + 3];
+		chessBoard[startY][startX + 3] = "";
+	}
+	//king moving left
+	else if (startX - 2 == destinationX && chessBoard[startY][startX][0] == 'K') //we know the rest is valid because we checked in the isValidPieceMovement function
+	{
+		//move the rook
+		chessBoard[startY][startX - 1] = chessBoard[startY][startX - 4];
+		chessBoard[startY][startX - 4] = "";
+	}
+
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
 	chessBoard[startY][startX] = ""; //clear the old start position
+
+	//if there's a king or rook, set it to active
+	if (chessBoard[destinationY][destinationX][0] == 'R' || chessBoard[destinationY][destinationX][0] == 'K')
+		chessBoard[destinationY][destinationX][2] = 'A';
 
 	//check if pawn reached the end of the enemy's board
 	//check for player 1's pawn
