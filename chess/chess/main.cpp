@@ -145,16 +145,17 @@ void initializeBoard()
 {
 	//######## STRING FORMAT FOR GAME PIECES ########
 	//2 chars: [Char signifying piece's type] [Player number that owns the piece]
+	//King and Rook pieces have a third char that is used to represent if it is Inactive [I] or Active [A] (has not been moved vs has been moved) for castling
 
 	//player 2 pieces
-	chessBoard[0][0] = "R2";
+	chessBoard[0][0] = "R2I";
 	chessBoard[0][1] = "N2";
 	chessBoard[0][2] = "B2";
 	chessBoard[0][3] = "Q2";
-	chessBoard[0][4] = "K2";
+	chessBoard[0][4] = "K2I";
 	chessBoard[0][5] = "B2";
 	chessBoard[0][6] = "N2";
-	chessBoard[0][7] = "R2";
+	chessBoard[0][7] = "R2I";
 	//player 2 pawns
 	chessBoard[1][0] = "P2";
 	chessBoard[1][1] = "P2";
@@ -182,14 +183,14 @@ void initializeBoard()
 	chessBoard[6][6] = "P1";
 	chessBoard[6][7] = "P1";
 	//player 1 pieces	 
-	chessBoard[7][0] = "R1";
+	chessBoard[7][0] = "R1I";
 	chessBoard[7][1] = "N1";
 	chessBoard[7][2] = "B1";
 	chessBoard[7][3] = "Q1";
-	chessBoard[7][4] = "K1";
+	chessBoard[7][4] = "K1I";
 	chessBoard[7][5] = "B1";
 	chessBoard[7][6] = "N1";
-	chessBoard[7][7] = "R1";
+	chessBoard[7][7] = "R1I";
 }
 
 //drawBoard function
@@ -211,7 +212,7 @@ void drawBoard(bool validMoves[64])
 	std::cout << "\n" << "      A     B     C     D     E     F     G     H\n";
 	for (int i = 0; i < 33; i++)//for the size of the board
 	{
-		if (i % 4 == 0) //prints out the horiztonal border
+		if (i % 4 == 0) //prints out the horizontal boarder
 		{
 			std::cout << "   *************************************************\n";
 		}
@@ -313,6 +314,10 @@ void howTo()
 
 		// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
 		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
+				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Playing the game.\n12. Return to main menu";
+		std::cout << "\n\nEnter your selection: ";
+		std::cin >> response;
 
 		if (inPlay) {
 			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
@@ -419,6 +424,11 @@ void howTo()
 			std::cout << "attacked.";
 		}
 		else if (response == "11")
+		{
+			std::cout << "To move your pieces, you right click the piece you would\n";
+			std::cout << "like to move and right click one of the highlighted spots.";
+		}
+		else if (response == "12")
 		{
 			break;
 		}
@@ -622,17 +632,33 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 				returnValue = true;
 		}
 
-		else //piece is a king
-		{
-			//check for left, right, up, or down movement
-			if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
-				returnValue = true;
-			//check for diagonal up to the left or right and diagonal down to the left or right
-			else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
-				returnValue = true;
+			else if (pieceType == 'K')//piece is a king
+			{
+				//check for left, right, up, or down movement
+				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
+					returnValue = true;
+				//check for diagonal up to the left or right and diagonal down to the left or right
+				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
+					returnValue = true;
+
+				//check for castling
+				//ensure the king hasnt been active
+				else if (chessBoard[startY][startX][2] == 'I')
+				{
+					std::string rookName = "R" + std::string(1, chessBoard[startY][startX][1]) + std::string(1, 'I'); //holds the name of the rook (just so we dont have to copy paste this ugly function)
+
+					//check for king moving to the right, and make sure there is a rook there and that it is friendly
+					if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX + 3] == rookName)
+						returnValue = true;
+					
+					//check for king moving to the left, and make sure there is a rook there and that it is friendly
+					else if (startX - 2 == destinationX && startY == destinationY && chessBoard[startY][startX - 4] == rookName)
+						returnValue = true;
+				}
+			}
 		}
 	}
-
+	
 	//see if the king is in check first
 	if (returnValue)
 	{
@@ -648,7 +674,6 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 		chessBoard[startY][startX] = chessBoard[destinationY][destinationX]; //move piece back to start position
 		chessBoard[destinationY][destinationX] = desinationPiece; //reset the old desination
 	}
-
 	return returnValue;
 }
 
@@ -789,7 +814,7 @@ void setKingCoordinates(char playerNum, int &kingX, int &kingY)
 		for (int j = 0; j < 8; j++)
 		{
 			//if the king is at the current square
-			if (chessBoard[i][j] == ("K" + std::string(1, playerNum)))
+			if (chessBoard[i][j][0] == 'K' && chessBoard[i][j][1] == playerNum)
 			{
 				//set the x and y values for the king
 				kingX = j;
@@ -806,10 +831,9 @@ void setKingCoordinates(char playerNum, int &kingX, int &kingY)
 //determines if the player's king is in check
 bool isInCheck(char playerNum)
 {
-	//set the king's x and y coordinates
 	int kingX;
 	int kingY;
-	setKingCoordinates(playerNum, kingX, kingY);
+	setKingCoordinates(playerNum, kingX, kingY); //set the king's x and y coordinates
 
 	//loop through each row
 	for (int k = 0; k < 8; k++)
@@ -1362,8 +1386,28 @@ void performComputerTurn(std::string &previousTurnAction)
 //moves a piece from the start to the end location and clears the old start location
 void movePiece(int startX, int startY, int destinationX, int destinationY)
 {
+	//check for castling
+	//king moving right
+	if (startX + 2 == destinationX && chessBoard[startY][startX][0] == 'K') //we know the rest is valid because we checked in the isValidPieceMovement function
+	{
+		//move the rook
+		chessBoard[startY][startX + 1] = chessBoard[startY][startX + 3];
+		chessBoard[startY][startX + 3] = "";
+	}
+	//king moving left
+	else if (startX - 2 == destinationX && chessBoard[startY][startX][0] == 'K') //we know the rest is valid because we checked in the isValidPieceMovement function
+	{
+		//move the rook
+		chessBoard[startY][startX - 1] = chessBoard[startY][startX - 4];
+		chessBoard[startY][startX - 4] = "";
+	}
+
 	chessBoard[destinationY][destinationX] = chessBoard[startY][startX]; //move piece to the end position
 	chessBoard[startY][startX] = ""; //clear the old start position
+
+	//if there's a king or rook, set it to active
+	if (chessBoard[destinationY][destinationX][0] == 'R' || chessBoard[destinationY][destinationX][0] == 'K')
+		chessBoard[destinationY][destinationX][2] = 'A';
 
 	//check if pawn reached the end of the enemy's board
 	//check for player 1's pawn
