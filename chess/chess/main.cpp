@@ -360,7 +360,7 @@ void howTo()
 			std::cout << "piece. A player wins when they capture the opponent\'s\n";
 			std::cout << "king, resulting in a checkmate. The only other outcome is\n";
 			std::cout << "a stalemate, where neither player can possibly capture\n";
-			std::cout << "the other\'s king.";
+			std::cout << "the other\'s king or a player has no legal moves.";
 		}
 		else if (response == "9")
 		{
