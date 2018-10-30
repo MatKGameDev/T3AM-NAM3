@@ -9,32 +9,19 @@
 // Description: This code is used as the main cpp file for our chess game, developed for the GDW2 project in the Game Development Workshop course at UOIT.
 // References: https://www.youtube.com/watch?v=8fCwUwI31Dk, 
 //             http://www.newthinktank.com/2018/06/c-tutorial-19-2/, 
+//             https://www.chess.com/learn-how-to-play-chess,
 //             http://www.stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
-
-/*
-* TODO (Incomplete list)
-* Basic TODOs:
-*  Add right click to move in the how-to
-*  Castling
-*  Fix bug that gets you out of check by putting other player in check
-*  Escape for main menu
-*
-* If time permits (Advanced TODOs):
-*  Sound FX/Music
-*/
+//             http://stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
 
 #include <iostream>
 #include <string>
 #include <Windows.h>
 #include <regex>
-#include <cwchar>
-#include <cstdlib>
-
-// conflict max() solution find stackoverflow.com/questions/20446373/cin-ignorenumeric-limitsstreamsizemax-n-max-not-recognize-it
-#undef max
 
 std::string chessBoard[8][8]; //a 2d array to represent the chess board, standard size is 8x8
-
+bool isGamePaused = false;    //determines if the game is paused
+bool inPlay = false;          //determines if the player is currently in a game
+bool isPVP = false;			  //determines if the play mode is player vs player or not
 
 //initializeBoard function prototype
 //resets the logical chess board to place pieces at starting positions
@@ -92,19 +79,6 @@ bool isStalemate(char playerNum);
 //check if player only has king
 bool isOnlyKing(char playerNum);
 
-//isInputPattern function prototype
-//check user input correct format 1-8,1-8
-bool isInputPattern(const std::string& input);
-
-//isInputValid function prototype
-//check both user input is valid and ask user input another x,y
-void isInputValid(std::string &userInput, std::string msg);
-
-//isValidStartP1/P2 function prototype
-//check the start point for player one and two
-void isValidStartP1(std::string &userInput, std::string msg);
-void isValidStartP2(std::string &userInput, std::string msg);
-
 //playGame function prototype
 //allows two players to play chess against each other, or a player can choose to play against a computer
 void playGame(bool isVersusComputer = false);
@@ -120,11 +94,6 @@ void movePiece(int startX, int startY, int destinationX, int destinationY);
 //highlightValidMoves function prototype
 //used for highlighting any squares that the player can move their piece, returns an array that corresponds with valid potential moves for the piece
 void highlightValidMoves(bool *validSquares, int startX, int startY);
-
-//toggleMusic function prototype
-//toggles music on or off
-//music taken from royalty free website: www.purple-planet.com/gentle
-void toggleMusic();
 
 //showMainMenu function prototype
 //displays the main menu
@@ -294,10 +263,6 @@ void drawBoard(bool validMoves[64])
 	}
 }
 
-bool inPlay = false;
-// memorize the play mode
-bool isPVP = false;
-
 //howTo function
 //displays the guide menu with various options to choose from
 void howTo()
@@ -438,15 +403,19 @@ void howTo()
 		system("pause"); //pauses the program so that the user can read their desired text before going back to the howTo menu
 	}
 
+	//if the user is in play, call the appropriate function
 	if (inPlay) 
 	{
+		//player vs player
 		if (isPVP)
-		playGame();
+			playGame();
+		//player vs computer
 		else
-		playGame(true);
+			playGame(true);
 	}
+	//user in not in a game, exit to menu
 	else
-	showMainMenu();
+		showMainMenu();
 }
 
 //getPieceName function
@@ -935,96 +904,6 @@ bool isStalemate(char playerNum)
 		return false;
 }
 
-//isInputPattern function use regular expression to 
-//determine the user input is correct format/pattern reference: www.newthinktank.com/2018/06/c-tutorial-19-2/
-bool isInputPattern(const std::string& input)
-{
-	// define a regular expression
-	const std::regex pattern
-	("\\b[1-8],[1-8]\\b");
-
-	// try to match the string with the regular expression
-	return std::regex_match(input, pattern);
-}
-
-//isInputValid function run while loop to clear user input 
-//and ask for valid Input from user
-void isInputValid(std::string &userInput, std::string msg)
-{
-	while (isInputPattern(userInput) == false) 
-	{
-		std::cout << " Invalid Input \n";
-		std::cin.clear(); // reset cin for next input
-						  // ignore the user input, passing in the maximize size a user could input to clear
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		std::cout << msg;
-		std::cin >> userInput;// ask user input the valid x,y
-	}
-}
-
-// check there is piece for player one to start
-void isValidStartP1(std::string &userInput, std::string msg)
-{
-	bool valid = false;
-
-	while (valid == false) 
-	{
-		// check for start point
-		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		int startY = userInput[2] - '0' - 1;
-
-		// the start piece is not empty
-		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '1') 
-			valid = false;
-		else 
-			valid = false;
-
-		if (valid == false) 
-		{
-			std::cout << " Invalid Start Piece \n";
-			std::cin.clear(); // reset cin for next input
-							  // ignore the user input, passing in the maximize size a user could input to clear
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-			std::cout << msg;
-			std::cin >> userInput;// ask user input the valid x,y
-		}
-	}
-}
-
-// check there is piece for player two to start
-void isValidStartP2(std::string &userInput, std::string msg)
-{
-	bool valid = false;
-
-	while (valid == false) 
-	{
-		// check for start point
-		int startX = userInput[0] - '0' - 1; //convert the char into an int and subtract 1 so it can be used as an index value
-		int startY = userInput[2] - '0' - 1;
-
-		// the start piece is not empty
-		if (chessBoard[startY][startX] != "" && chessBoard[startY][startX][1] == '2')
-			valid = false;
-		else
-			valid = false;
-
-		if (valid == false) 
-		{
-			std::cout << " Invalid Start Piece \n";
-			std::cin.clear(); // reset cin for next input
-							  // ignore the user input, passing in the maximize size a user could input to clear
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-			std::cout << msg;
-			std::cin >> userInput;// ask user input the valid x,y
-		}
-	}
-}
-
-bool isGamePause = false;
-
 //playGame function
 //performs all actions that allow a user to play against another player, or against a computer player
 void playGame(bool isVersusComputer)
@@ -1037,15 +916,21 @@ void playGame(bool isVersusComputer)
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); //set background colour
 
-	static int playerNumber;		 //an int that is either 1 or 2, which determines which player's move it is
-	static bool validMoves[64] = { false }; //an array where each true value determines a spot that a selected piece can be moved
+	static std::string userQuitInput;           //holds user input after they're asked if they want to quit
+	static int playerNumber;		            //an int that is either 1 or 2, which determines which player's move it is
+	static bool validMoves[64];                 //an array where each true value determines a spot that a selected piece can be moved
 	static std::string previousTurnAction = ""; //a small description of the previous turn's action
 
 	std::string userInputStart;      //user's input for the start location of the piece
 	std::string userInputEnd;        //user's input for the desired end location of the piece
 	int defendingPlayer;             //holds the number of the defending player
 
-	if (isGamePause == false) {
+	//reset all squares to invalid movement options till next turn
+	for (int i = 0; i < 64; i++)
+		validMoves[i] = false;
+
+	if (isGamePaused == false) 
+	{
 		// reset datas
 		playerNumber = 1;           
 		previousTurnAction = " Game started."; 
@@ -1053,10 +938,8 @@ void playGame(bool isVersusComputer)
 		initializeBoard();     //reset the chess board
 		drawBoard(validMoves); //display the chess board to the user
 	}
-	else {
-		//update game use saved data
-		drawBoard(validMoves);
-	}
+	else 
+		drawBoard(validMoves); //update game use saved data
 
 	//declare all variables for holding x and y values
 	int tempX;
@@ -1066,7 +949,7 @@ void playGame(bool isVersusComputer)
 	int endX;
 	int endY;
 
-	std::cout << "\n" << previousTurnAction << "\n\n"; //output a description of the previous turn's action
+	std::cout << "\n" << previousTurnAction << "\n"; //output a description of the previous turn's action
 
 	//display whos turn it is
 	if (isVersusComputer) 
@@ -1082,24 +965,50 @@ void playGame(bool isVersusComputer)
 
 	while (1)
 	{
+		//declare and set the cursor position to get the x and y values (in pixels)
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		ScreenToClient(GetConsoleWindow(), &cursorPos);
+
 		// user clicked 1 to check how to play
-		if (GetAsyncKeyState('1') & 0x8000) 
+		if (GetAsyncKeyState('1') & 0x8000)
 		{
 			// Pause the game to read how to play
-			isGamePause = true;
-
-			//reset all squares to invalid movement options till next turn
-			for (int i = 0; i < 64; i++)
-				validMoves[i] = false;
+			isGamePaused = true;
 
 			// store all data need for update game once back
 			howTo();
 		}
 
-		//declare and set the cursor position to get the x and y values (in pixels)
-		POINT cursorPos;
-		GetCursorPos(&cursorPos);
-		ScreenToClient(GetConsoleWindow(), &cursorPos);
+		//check for user hitting escape
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+		{
+			// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
+			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+			//prompt the user if they wish to quit
+			system("cls");
+			std::cout << "\nAre you sure you wish to quit?\n\nYour progress will NOT be saved.\n\nEnter 'q' to quit and go to the main menu or type\nanything else to keep playing: ";
+			std::cin >> userQuitInput;
+
+			if (userQuitInput == "q" || userQuitInput == "Q")
+				break;
+
+			else
+			{
+				//reset all squares to invalid movement options till next turn
+				for (int i = 0; i < 64; i++)
+					validMoves[i] = false;
+				drawBoard(validMoves); //display the chess board to the user
+
+				std::cout << "\n" << previousTurnAction << "\n"; //output a description of the previous turn's action
+				//display whos turn it is
+				if (isVersusComputer)
+					std::cout << " Your turn.";
+				else
+					std::cout << " Player " << std::to_string(playerNumber) << "'s turn.";
+			}
+		}
 
 		//if a spot on the chess board was clicked
 		if (GetAsyncKeyState(VK_RBUTTON))
@@ -1429,14 +1338,6 @@ void highlightValidMoves(bool *validSquares, int startX, int startY)
 	}
 }
 
-//toggleMusic function
-//toggles music on or off
-void toggleMusic()
-{
-	//mciSendString("open \"*.mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
-	//mciSendString("play mp3 repeat", NULL, 0, NULL);
-}
-
 //showMainMenu function prototype
 //displays the main menu
 void showMainMenu()
@@ -1446,7 +1347,7 @@ void showMainMenu()
 
 	// reset data
 	inPlay = false;
-	isGamePause = false;
+	isGamePaused = false;
 
 	//used the following thread for help with resizing the console window: www.stackoverflow.com/questions/21238806/how-to-set-output-console-width-in-visual-studio
 	HWND console = GetConsoleWindow();
