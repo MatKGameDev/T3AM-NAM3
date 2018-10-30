@@ -314,23 +314,18 @@ void howTo()
 
 		// clear the input buffer stackoverflow.com/questions/8468514/getasynckeystate-creating-problems-with-cin
 		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-		std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				  << "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Playing the game.\n12. Return to main menu";
-		std::cout << "\n\nEnter your selection: ";
-		std::cin >> response;
-
+	
 		if (inPlay) {
 			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Back to game.\n";
-			std::cout << "\n\nEnter your selection: ";
-			std::cin >> response;
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Playing the game.\n12. Back to game";
 		}
 		else {
 			std::cout << "Enter the number of whichever topic you would like to\nlearn about.\n\n"
-				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Return to main menu.\n";
-			std::cout << "\n\nEnter your selection: ";
-			std::cin >> response;
+				<< "1.  Terminology\n2.  Pawns\n3.  Rooks\n4.  Knights\n5.  Bishops\n6.  Queen\n7.  King\n8.  General rules\n9.  Player 1 & 2 rules\n10. Castling\n11. Playing the game.\n12. Return to main menu";
 		}
+
+		std::cout << "\n\nEnter your selection: ";
+		std::cin >> response;
 
 		system("cls"); //clear screen every time the user selects something, to look less cluttered
 
