@@ -387,7 +387,9 @@ void howTo()
 		else if (response == "11")
 		{
 			std::cout << "To move your pieces, you right click the piece you would\n";
-			std::cout << "like to move and right click one of the highlighted spots.";
+			std::cout << "like to move and right click one of the highlighted spots.\n\n";
+			std::cout << "You can press '1' at any time during a game to open up this\n";
+			std::cout << "help guide, or press the escape key to go to the main menu.";
 		}
 		else if (response == "12")
 		{
