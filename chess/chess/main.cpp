@@ -510,11 +510,8 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 	//if the start position isn't a piece
 	if (chessBoard[startY][startX] == "")
 		return false;
-	//if the destination is off the board
-	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0)
-		return false;
-	//if the start position is off the board
-	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0)
+	//if the destination or start is off the board
+	if (destinationX > 7 || destinationX < 0 || destinationY > 7 || destinationY < 0 || startX > 7 || startY < 0 || startY > 7 || startY < 0)
 		return false;
 
 
@@ -632,29 +629,28 @@ bool isValidPieceMovement(int startX, int startY, int destinationX, int destinat
 				returnValue = true;
 		}
 
-			else if (pieceType == 'K')//piece is a king
+		else //piece is a king
+		{
+			//check for left, right, up, or down movement
+			if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
+				returnValue = true;
+			//check for diagonal up to the left or right and diagonal down to the left or right
+			else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
+				returnValue = true;
+
+			//check for castling
+			//ensure the king hasnt been active
+			else if (chessBoard[startY][startX][2] == 'I')
 			{
-				//check for left, right, up, or down movement
-				if (startX - 1 == destinationX && startY == destinationY || startX + 1 == destinationX && startY == destinationY || startX == destinationX && startY - 1 == destinationY || startX == destinationX && startY + 1 == destinationY)
-					returnValue = true;
-				//check for diagonal up to the left or right and diagonal down to the left or right
-				else if (startX - 1 == destinationX && startY - 1 == destinationY || startX + 1 == destinationX && startY - 1 == destinationY || startX - 1 == destinationX && startY + 1 == destinationY || startX + 1 == destinationX && startY + 1 == destinationY)
-					returnValue = true;
+				std::string rookName = "R" + std::string(1, chessBoard[startY][startX][1]) + std::string(1, 'I'); //holds the name of the rook (just so we dont have to copy paste this ugly function)
 
-				//check for castling
-				//ensure the king hasnt been active
-				else if (chessBoard[startY][startX][2] == 'I')
-				{
-					std::string rookName = "R" + std::string(1, chessBoard[startY][startX][1]) + std::string(1, 'I'); //holds the name of the rook (just so we dont have to copy paste this ugly function)
-
-					//check for king moving to the right, and make sure there is a rook there and that it is friendly
-					if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX + 3] == rookName)
-						returnValue = true;
+				//check for king moving to the right, and make sure there is a rook there and that it is friendly
+				if (startX + 2 == destinationX && startY == destinationY && chessBoard[startY][startX + 3] == rookName)
+					returnValue = true;
 					
-					//check for king moving to the left, and make sure there is a rook there and that it is friendly
-					else if (startX - 2 == destinationX && startY == destinationY && chessBoard[startY][startX - 4] == rookName)
-						returnValue = true;
-				}
+				//check for king moving to the left, and make sure there is a rook there and that it is friendly
+				else if (startX - 2 == destinationX && startY == destinationY && chessBoard[startY][startX - 4] == rookName)
+					returnValue = true;
 			}
 		}
 	}
