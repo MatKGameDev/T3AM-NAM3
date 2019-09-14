@@ -1,2 +1,2 @@
 # T3AM-NAM3
-we do a gdw 2
+GDW2 - Chess
